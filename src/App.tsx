@@ -1,35 +1,108 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { Layout } from './components/Layout';
+import { Dashboard } from './components/Dashboard';
+import { LearningPath } from './components/LearningPath';
+import { Gamification } from './components/Gamification';
+import { CreatorStudio } from './components/CreatorStudio';
+import { AuthModal } from './components/AuthModal';
+import { LandingPage } from './components/LandingPage';
+import { LessonView } from './components/LessonView';
+import { ContactUs } from './components/ContactUs';
+import { AnimatePresence } from 'motion/react';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // New state to track if we are in lesson view or contact view
+  const [isInLessonMode, setIsInLessonMode] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+
+  // Mock role for wireframe purposes
+  const [userRole, setUserRole] = useState<'Learner' | 'Contributor' | 'Admin'>('Contributor');
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setIsAuthOpen(false);
+  };
+
+  const handleLessonStart = () => {
+    setIsInLessonMode(true);
+  };
+
+  const handleLessonBack = () => {
+    setIsInLessonMode(false);
+  };
+
+  const renderContent = () => {
+    if (isInLessonMode) {
+      return <LessonView onBack={handleLessonBack} />;
+    }
+
+    switch (activeTab) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'learning-path':
+        return <LearningPath onStartLesson={handleLessonStart} />;
+      case 'gamification':
+        return <Gamification />;
+      case 'creator':
+        return <CreatorStudio />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  if (showContact) {
+    return <ContactUs onBack={() => setShowContact(false)} />;
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <>
+        <LandingPage 
+          onOpenAuth={() => setIsAuthOpen(true)} 
+          onOpenContact={() => setShowContact(true)}
+        />
+        <AnimatePresence>
+          {isAuthOpen && (
+            <AuthModal 
+              isOpen={isAuthOpen} 
+              onClose={() => setIsAuthOpen(false)}
+              onLogin={handleLogin}
+            />
+          )}
+        </AnimatePresence>
+      </>
+    );
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <Layout 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        userRole={userRole}
+        onOpenAuth={() => setIsAuthOpen(true)}
+        isLoggedIn={isLoggedIn}
+      >
+        <AnimatePresence mode="wait">
+          <div key={isInLessonMode ? 'lesson' : activeTab} className="h-full">
+            {renderContent()}
+          </div>
+        </AnimatePresence>
+      </Layout>
 
-export default App
+      <AnimatePresence>
+        {isAuthOpen && (
+          <AuthModal 
+            isOpen={isAuthOpen} 
+            onClose={() => setIsAuthOpen(false)}
+            onLogin={handleLogin}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
