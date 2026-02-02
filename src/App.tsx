@@ -1,30 +1,32 @@
-import React, { useState } from 'react';
-import { Layout } from './components/Layout';
-import { Dashboard } from './components/Dashboard';
-import { LearningPath } from './components/LearningPath';
-import { Gamification } from './components/Gamification';
-import { CreatorStudio } from './components/CreatorStudio';
-import { AuthModal } from './components/AuthModal';
-import { LandingPage } from './components/LandingPage';
-import { LessonView } from './components/LessonView';
-import { ContactUs } from './components/ContactUs';
-import { AnimatePresence } from 'motion/react';
+import React, { useState } from "react";
+import { Layout } from "./components/Layout";
+import { Dashboard } from "./components/Dashboard";
+import { LearningPath } from "./components/LearningPath";
+import { Gamification } from "./components/Gamification";
+import { CreatorStudio } from "./components/CreatorStudio";
+import { AuthModal } from "./components/AuthModal";
+import { LandingPage } from "./components/LandingPage";
+import { LessonView } from "./components/LessonView";
+import { ContactUs } from "./components/ContactUs";
+import { AnimatePresence } from "motion/react";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // New state to track if we are in lesson view or contact view
+  const [userName, setUserName] = useState("");
+
   const [isInLessonMode, setIsInLessonMode] = useState(false);
   const [showContact, setShowContact] = useState(false);
 
-  // Mock role for wireframe purposes
-  const [userRole, setUserRole] = useState<'Learner' | 'Contributor' | 'Admin'>('Contributor');
+  const [userRole, setUserRole] = useState<"Learner" | "Contributor" | "Admin">(
+    "Contributor",
+  );
 
-  const handleLogin = () => {
+  const handleLogin = (username: string) => {
     setIsLoggedIn(true);
     setIsAuthOpen(false);
+    setUserName(username);
   };
 
   const handleLessonStart = () => {
@@ -41,16 +43,16 @@ export default function App() {
     }
 
     switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'learning-path':
+      case "dashboard":
+        return <Dashboard userName={userName} />;
+      case "learning-path":
         return <LearningPath onStartLesson={handleLessonStart} />;
-      case 'gamification':
+      case "gamification":
         return <Gamification />;
-      case 'creator':
+      case "creator":
         return <CreatorStudio />;
       default:
-        return <Dashboard />;
+        return <Dashboard userName={userName} />;
     }
   };
 
@@ -61,14 +63,14 @@ export default function App() {
   if (!isLoggedIn) {
     return (
       <>
-        <LandingPage 
-          onOpenAuth={() => setIsAuthOpen(true)} 
+        <LandingPage
+          onOpenAuth={() => setIsAuthOpen(true)}
           onOpenContact={() => setShowContact(true)}
         />
         <AnimatePresence>
           {isAuthOpen && (
-            <AuthModal 
-              isOpen={isAuthOpen} 
+            <AuthModal
+              isOpen={isAuthOpen}
               onClose={() => setIsAuthOpen(false)}
               onLogin={handleLogin}
             />
@@ -80,15 +82,16 @@ export default function App() {
 
   return (
     <>
-      <Layout 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+      <Layout
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         userRole={userRole}
         onOpenAuth={() => setIsAuthOpen(true)}
         isLoggedIn={isLoggedIn}
+        userName={userName}
       >
         <AnimatePresence mode="wait">
-          <div key={isInLessonMode ? 'lesson' : activeTab} className="h-full">
+          <div key={isInLessonMode ? "lesson" : activeTab} className="h-full">
             {renderContent()}
           </div>
         </AnimatePresence>
@@ -96,8 +99,8 @@ export default function App() {
 
       <AnimatePresence>
         {isAuthOpen && (
-          <AuthModal 
-            isOpen={isAuthOpen} 
+          <AuthModal
+            isOpen={isAuthOpen}
             onClose={() => setIsAuthOpen(false)}
             onLogin={handleLogin}
           />
