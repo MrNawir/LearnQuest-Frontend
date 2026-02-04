@@ -122,7 +122,7 @@ export function Dashboard({ userName }: DashboardProps) {
                 progress: 32,
                 next: "Color Theory & Accessibility",
                 image:
-                  "https://images.unsplash.com/photo-1558655146-d09347e0b7a9?w=500&h=300&fit=crop",
+                  "https://plus.unsplash.com/premium_photo-1678565879444-f87c8bd9f241?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cHJvZ3JhbW1lcnxlbnwwfHwwfHx8MA%3D%3D",
                 category: "Design",
               },
             ].map((path, i) => (
