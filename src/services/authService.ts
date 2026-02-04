@@ -1,141 +1,81 @@
-import axios from 'axios';
-
-const API_URL = '/api/auth';
+import api from './api';
 
 export interface User {
-    id: number;
-    username: string;
-    email: string;
-    avatar_url?: string;
-    role?: string;
-    created_at?: string;
+  id: number;
+  username: string;
+  email: string;
+  role: 'admin' | 'contributor' | 'learner';
+  xp: number;
+  points: number;
+  streak_days: number;
+  hours_learned: number;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
 }
 
 export interface LoginResponse {
-    message: string;
-    user: User;
-    access_token: string;
+  message: string;
+  user: User;
+  access_token: string;
 }
 
 export interface RegisterResponse {
-    message: string;
-    user: User;
-    access_token: string;
+  message: string;
+  user: User;
+  access_token: string;
 }
 
-/**
- * Authentication service for handling user authentication operations
- */
 export const authService = {
-    /**
-     * Login user with email and password
-     */
-    login: async (email: string, password: string): Promise<LoginResponse> => {
-        try {
-            const response = await axios.post<LoginResponse>(`${API_URL}/login`, {
-                email,
-                password,
-            });
+  login: async (email: string, password: string): Promise<LoginResponse> => {
+    const response = await api.post<LoginResponse>('/auth/login', { email, password });
+    const { access_token, user } = response.data;
+    
+    // Store token and user in localStorage
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    return response.data;
+  },
 
-            // Store token and user data in localStorage
-            if (response.data.access_token) {
-                localStorage.setItem('token', response.data.access_token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-            }
+  register: async (username: string, email: string, password: string): Promise<RegisterResponse> => {
+    const response = await api.post<RegisterResponse>('/auth/register', { username, email, password });
+    const { access_token, user } = response.data;
+    
+    // Store token and user in localStorage
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    return response.data;
+  },
 
-            return response.data;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error
-                ? error.message
-                : (error as any).response?.data?.error || 'Login failed';
-            throw new Error(errorMessage);
-        }
-    },
+  logout: (): void => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
 
-    /**
-     * Register new user
-     */
-    register: async (username: string, email: string, password: string): Promise<RegisterResponse> => {
-        try {
-            const response = await axios.post<RegisterResponse>(`${API_URL}/register`, {
-                username,
-                email,
-                password,
-            });
+  getCurrentUser: async (): Promise<User> => {
+    const response = await api.get<{ user: User }>('/auth/me');
+    return response.data.user;
+  },
 
-            // Store token and user data in localStorage
-            if (response.data.access_token) {
-                localStorage.setItem('token', response.data.access_token);
-                localStorage.setItem('user', JSON.stringify(response.data.user));
-            }
+  getStoredUser: (): User | null => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  },
 
-            return response.data;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error
-                ? error.message
-                : (error as any).response?.data?.error || 'Registration failed';
-            throw new Error(errorMessage);
-        }
-    },
+  getToken: (): string | null => {
+    return localStorage.getItem('token');
+  },
 
-    /**
-     * Logout user and clear stored data
-     */
-    logout: (): void => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-    },
-
-    /**
-     * Get stored JWT token
-     */
-    getToken: (): string | null => {
-        return localStorage.getItem('token');
-    },
-
-    /**
-     * Get stored user data
-     */
-    getUser: (): User | null => {
-        const userStr = localStorage.getItem('user');
-        if (!userStr) return null;
-
-        try {
-            return JSON.parse(userStr);
-        } catch {
-            return null;
-        }
-    },
-
-    /**
-     * Check if user is authenticated (has valid token)
-     */
-    isAuthenticated: (): boolean => {
-        const token = authService.getToken();
-        return !!token;
-    },
-
-    /**
-     * Verify current token is valid by calling /me endpoint
-     */
-    verifyToken: async (): Promise<User | null> => {
-        const token = authService.getToken();
-        if (!token) return null;
-
-        try {
-            const response = await axios.get<{ user: User }>(`${API_URL}/me`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            // Update stored user data
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            return response.data.user;
-        } catch {
-            // Token is invalid or expired
-            authService.logout();
-            return null;
-        }
-    },
+  isAuthenticated: (): boolean => {
+    return !!localStorage.getItem('token');
+  },
 };

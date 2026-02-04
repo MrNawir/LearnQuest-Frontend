@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import {
   BookOpen,
   LayoutDashboard,
@@ -9,7 +8,6 @@ import {
   Search,
   Bell,
   Menu,
-  X,
   User,
   ChevronLeft,
   ChevronRight,
@@ -38,35 +36,23 @@ export function Layout({
   isLoggedIn,
   userName,
 }: LayoutProps) {
-  const navigate = useNavigate();
-  const logout = useAuthStore((state) => state.logout);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { id: "learning-path", label: "My Learning", icon: BookOpen, path: "/learning-path" },
-    { id: "gamification", label: "Achievements", icon: Trophy, path: "/gamification" },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "learning-path", label: "My Learning", icon: BookOpen },
+    { id: "gamification", label: "Achievements", icon: Trophy },
   ];
 
   if (userRole === "Contributor" || userRole === "Admin") {
-    navItems.push({ id: "creator", label: "Creator Studio", icon: PlusCircle, path: "/creator" });
+    navItems.push({ id: "creator", label: "Creator Studio", icon: PlusCircle });
   }
 
-  if (userRole === "Admin") {
-    navItems.push({ id: "admin", label: "Admin Dashboard", icon: Shield });
-  }
-
-  const SidebarContent = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full bg-card border-r border-border shadow-sm">
       <div className="p-6 flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-xl">
@@ -81,9 +67,8 @@ export function Layout({
 
       <nav className="flex-1 px-4 py-4 space-y-2">
         {navItems.map((item) => (
-          <Link
+          <button
             key={item.id}
-            to={item.path}
             onClick={() => {
               setActiveTab(item.id);
               setIsMobileMenuOpen(false);
@@ -100,7 +85,7 @@ export function Layout({
               className={activeTab === item.id ? "text-accent" : ""}
             />
             {(isSidebarOpen || isMobileMenuOpen) && <span>{item.label}</span>}
-          </Link>
+          </button>
         ))}
       </nav>
 
@@ -116,17 +101,6 @@ export function Layout({
             </div>
           </div>
         )}
-
-        <button
-          onClick={handleLogout}
-          className={clsx(
-            "w-full flex items-center gap-3 px-4 py-3 mb-2 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors text-sm font-medium",
-            !isSidebarOpen && "justify-center",
-          )}
-        >
-          <LogOut size={20} />
-          {(isSidebarOpen || isMobileMenuOpen) && <span>Logout</span>}
-        </button>
 
         <button
           className={clsx(
@@ -149,7 +123,7 @@ export function Layout({
         animate={{ width: isSidebarOpen ? 260 : 80 }}
         className="hidden md:block h-full shrink-0 relative z-20"
       >
-        <SidebarContent />
+        {sidebarContent}
         <button
           onClick={toggleSidebar}
           className="absolute -right-3 top-8 w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center border-2 border-background shadow-sm hover:scale-110 transition-transform cursor-pointer"
@@ -179,7 +153,7 @@ export function Layout({
               exit={{ x: -280 }}
               className="fixed inset-y-0 left-0 w-[280px] z-50 md:hidden"
             >
-              <SidebarContent />
+              {sidebarContent}
             </motion.div>
           </>
         )}
@@ -218,23 +192,32 @@ export function Layout({
             <div className="h-6 w-px bg-border mx-1"></div>
 
             {isLoggedIn ? (
-              <button className="flex items-center gap-3 pl-2 pr-1 py-1 rounded-full hover:bg-secondary/50 transition-colors">
-                <div className="text-right hidden sm:block">
-                  <div className="text-sm font-semibold text-foreground">
-                    {userName}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 pl-2 pr-1 py-1">
+                  <div className="text-right hidden sm:block">
+                    <div className="text-sm font-semibold text-foreground">
+                      {userName}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {userRole}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Level 12 Scholar
+                  <div className="w-8 h-8 rounded-full bg-primary/30 border-2 border-primary flex items-center justify-center overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop"
+                      alt="User"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-primary/30 border-2 border-primary flex items-center justify-center overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop"
-                    alt="User"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </button>
+                <button
+                  onClick={() => useAuthStore.getState().logout()}
+                  className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
             ) : (
               <button
                 onClick={onOpenAuth}

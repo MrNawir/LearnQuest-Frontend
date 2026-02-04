@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = '/api/comments';
+import api from './api';
 
 export interface CommentUser {
     id: number;
@@ -29,19 +27,11 @@ export interface CommentResponse {
     current_page: number;
 }
 
-const getAuthHeader = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 export const commentService = {
     getComments: async (
         params: { learning_path_id?: number | string; resource_id?: number | string; page?: number }
     ) => {
-        const response = await axios.get<CommentResponse>(API_URL, {
-            params,
-            headers: getAuthHeader()
-        });
+        const response = await api.get<CommentResponse>('/comments', { params });
         return response.data;
     },
 
@@ -51,23 +41,17 @@ export const commentService = {
         resource_id?: number | string;
         parent_id?: number;
     }) => {
-        const response = await axios.post<Comment>(API_URL, data, {
-            headers: getAuthHeader()
-        });
+        const response = await api.post<Comment>('/comments', data);
         return response.data;
     },
 
     updateComment: async (id: number, content: string) => {
-        const response = await axios.put<Comment>(`${API_URL}/${id}`, { content }, {
-            headers: getAuthHeader()
-        });
+        const response = await api.put<Comment>(`/comments/${id}`, { content });
         return response.data;
     },
 
     deleteComment: async (id: number) => {
-        const response = await axios.delete(`${API_URL}/${id}`, {
-            headers: getAuthHeader()
-        });
+        const response = await api.delete(`/comments/${id}`);
         return response.data;
     }
 };

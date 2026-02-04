@@ -1,25 +1,53 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { X, Mail, Lock, Github } from "lucide-react";
+import { X, Mail, Lock, Github, User, Loader2, AlertCircle } from "lucide-react";
+import { useAuthStore } from "../stores/authStore";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (username: string) => void;
+  onLogin: () => void;
 }
 
 export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const { login, register, isLoading, error, clearError } = useAuthStore();
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const username = email.split("@")[0] || "Learner";
-    onLogin(username);
-    onClose();
+    clearError();
+
+    if (!isLoginMode && password !== confirmPassword) {
+      return;
+    }
+
+    let success = false;
+    if (isLoginMode) {
+      success = await login(email, password);
+    } else {
+      success = await register(username, email, password);
+    }
+
+    if (success) {
+      onLogin();
+      onClose();
+    }
+  };
+
+  const toggleMode = () => {
+    setIsLoginMode(!isLoginMode);
+    clearError();
+    setEmail("");
+    setPassword("");
+    setUsername("");
+    setConfirmPassword("");
   };
 
   return (
@@ -48,10 +76,10 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
         <div className="p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-foreground mb-2">
-              {isLogin ? "Welcome Back!" : "Join LearnQuest"}
+              {isLoginMode ? "Welcome Back!" : "Join LearnQuest"}
             </h2>
             <p className="text-muted-foreground">
-              {isLogin
+              {isLoginMode
                 ? "Enter your credentials to access your account."
                 : "Start your learning journey today."}
             </p>
@@ -82,6 +110,35 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
+                <AlertCircle size={16} />
+                {error}
+              </div>
+            )}
+
+            {!isLoginMode && (
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-foreground ml-1">
+                  Username
+                </label>
+                <div className="relative">
+                  <User
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
+                  <input
+                    type="text"
+                    placeholder="johndoe"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-secondary/20 border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all"
+                    required={!isLoginMode}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-sm font-bold text-foreground ml-1">
                 Email
@@ -122,25 +179,52 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
               </div>
             </div>
 
+            {!isLoginMode && (
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-foreground ml-1">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    size={18}
+                  />
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-secondary/20 border border-border rounded-xl focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all"
+                    required={!isLoginMode}
+                  />
+                </div>
+                {confirmPassword && password !== confirmPassword && (
+                  <p className="text-xs text-destructive ml-1">Passwords do not match</p>
+                )}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full py-3 bg-accent text-white rounded-xl font-bold shadow-lg shadow-accent/20 hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5 transition-all mt-6"
+              disabled={isLoading || (!isLoginMode && password !== confirmPassword)}
+              className="w-full py-3 bg-accent text-white rounded-xl font-bold shadow-lg shadow-accent/20 hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5 transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isLogin ? "Sign In" : "Create Account"}
+              {isLoading && <Loader2 size={18} className="animate-spin" />}
+              {isLoginMode ? "Sign In" : "Create Account"}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm">
             <span className="text-muted-foreground">
-              {isLogin
+              {isLoginMode
                 ? "Don't have an account? "
                 : "Already have an account? "}
             </span>
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={toggleMode}
               className="font-bold text-accent hover:underline"
             >
-              {isLogin ? "Sign Up" : "Log In"}
+              {isLoginMode ? "Sign Up" : "Log In"}
             </button>
           </div>
         </div>
