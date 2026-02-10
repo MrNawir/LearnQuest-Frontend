@@ -1,81 +1,109 @@
 import { create } from 'zustand';
-import { authService, User } from '../services/authService';
+import { authService } from '../services/authService';
+import type { User } from '../types';
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
   
-  // Actions
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (username: string, email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
+  updateUser: (user: Partial<User>) => void;
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: authService.getStoredUser(),
+  token: authService.getToken(),
   isAuthenticated: authService.isAuthenticated(),
   isLoading: false,
   error: null,
 
-  login: async (email: string, password: string): Promise<boolean> => {
+  login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
       const response = await authService.login(email, password);
+      set({
+        user: response.user,
+        token: response.access_token,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
       set({ 
-        user: response.user, 
-        isAuthenticated: true, 
+        error: errorMessage,
         isLoading: false 
       });
-      return true;
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: string } } };
-      const errorMessage = err.response?.data?.error || 'Login failed. Please try again.';
-      set({ error: errorMessage, isLoading: false });
-      return false;
+      throw error;
     }
   },
 
-  register: async (username: string, email: string, password: string): Promise<boolean> => {
+  register: async (username: string, email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
       const response = await authService.register(username, email, password);
+      set({
+        user: response.user,
+        token: response.access_token,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
       set({ 
-        user: response.user, 
-        isAuthenticated: true, 
+        error: errorMessage,
         isLoading: false 
       });
-      return true;
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: string } } };
-      const errorMessage = err.response?.data?.error || 'Registration failed. Please try again.';
-      set({ error: errorMessage, isLoading: false });
-      return false;
+      throw error;
     }
   },
 
   logout: () => {
     authService.logout();
-    set({ user: null, isAuthenticated: false, error: null });
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+    });
   },
 
   checkAuth: async () => {
     if (!authService.isAuthenticated()) {
-      set({ user: null, isAuthenticated: false });
+      set({ isAuthenticated: false, user: null });
       return;
     }
     
     set({ isLoading: true });
     try {
       const user = await authService.getCurrentUser();
-      set({ user, isAuthenticated: true, isLoading: false });
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
     } catch {
-      // Token invalid - clear auth state
       authService.logout();
-      set({ user: null, isAuthenticated: false, isLoading: false });
+      set({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
+  },
+
+  updateUser: (userData: Partial<User>) => {
+    const currentUser = get().user;
+    if (currentUser) {
+      const updatedUser = { ...currentUser, ...userData };
+      set({ user: updatedUser });
+      localStorage.setItem('user', JSON.stringify(updatedUser));
     }
   },
 

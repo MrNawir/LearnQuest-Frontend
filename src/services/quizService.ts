@@ -1,53 +1,37 @@
-import axios from 'axios';
-import { Quiz, QuizResult, UserAnswer } from '../types/quiz';
+import api from './api';
+import type { Quiz, QuizResult, QuizAttempt } from '../types';
 
-const API_URL = '/api/modules';
+interface QuizAnswer {
+  question_id: number;
+  answer: number;
+}
 
-const getAuthHeader = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
-/**
- * Quiz service for API interactions
- */
 export const quizService = {
-    /**
-     * Get quiz for a specific module
-     */
-    getQuiz: async (moduleId: string | number): Promise<Quiz> => {
-        try {
-            const response = await axios.get<Quiz>(`${API_URL}/${moduleId}/quiz`, {
-                headers: getAuthHeader()
-            });
-            return response.data;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error
-                ? error.message
-                : (error as any).response?.data?.error || 'Failed to fetch quiz';
-            throw new Error(errorMessage);
-        }
-    },
+  async getModuleQuiz(moduleId: number): Promise<Quiz> {
+    const response = await api.get<{ data: { quiz: Quiz } }>(`/quizzes/module/${moduleId}/quiz`);
+    return response.data.data?.quiz;
+  },
 
-    /**
-     * Submit quiz answers and get results with XP
-     */
-    submitQuiz: async (
-        moduleId: string | number,
-        answers: UserAnswer[]
-    ): Promise<QuizResult> => {
-        try {
-            const response = await axios.post<QuizResult>(
-                `${API_URL}/${moduleId}/quiz/submit`,
-                { answers },
-                { headers: getAuthHeader() }
-            );
-            return response.data;
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error
-                ? error.message
-                : (error as any).response?.data?.error || 'Failed to submit quiz';
-            throw new Error(errorMessage);
-        }
-    },
+  async getQuiz(quizId: number): Promise<Quiz> {
+    const response = await api.get<{ data: { quiz: Quiz } }>(`/quizzes/${quizId}`);
+    return response.data.data?.quiz;
+  },
+
+  async submitQuiz(quizId: number, answers: QuizAnswer[], timeTaken?: number): Promise<QuizResult> {
+    const response = await api.post<{ data: QuizResult }>(`/quizzes/${quizId}/submit`, {
+      answers,
+      time_taken: timeTaken || 0
+    });
+    return response.data.data;
+  },
+
+  async getQuizAttempts(quizId: number): Promise<QuizAttempt[]> {
+    const response = await api.get<{ data: { attempts: QuizAttempt[] } }>(`/quizzes/${quizId}/attempts`);
+    return response.data.data?.attempts || [];
+  },
+
+  async getMyAttempts(): Promise<QuizAttempt[]> {
+    const response = await api.get<{ data: { attempts: QuizAttempt[] } }>('/quizzes/attempts/me');
+    return response.data.data?.attempts || [];
+  }
 };

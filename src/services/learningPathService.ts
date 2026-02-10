@@ -1,69 +1,66 @@
 import api from './api';
+import type { LearningPath, UserProgress } from '../types';
 
-export interface Module {
-    id: number;
-    title: string;
-    description: string;
-    order: number;
-    xp_reward: number;
-    learning_path_id: number;
+interface LearningPathsResponse {
+  learning_paths: LearningPath[];
 }
 
-export interface LearningPath {
-    id: number;
-    title: string;
-    description: string;
-    category: string;
-    difficulty: string;
-    image_url: string | null;
-    xp_reward: number;
-    creator_id: number;
-    is_published: boolean;
-    rating: number;
-    enrolled_count: number;
-    created_at: string;
-    modules?: Module[];
+interface LearningPathResponse {
+  learning_path: LearningPath;
 }
 
-export interface CreateLearningPathData {
-    title: string;
-    description: string;
-    category: string;
-    difficulty: string;
-    image_url?: string;
-    xp_reward?: number;
+interface ProgressResponse {
+  enrolled: boolean;
+  progress: UserProgress | null;
 }
 
-export interface CreateModuleData {
-    title: string;
-    description: string;
-    order?: number;
-    xp_reward?: number;
+interface MyPathsResponse {
+  paths: (LearningPath & { progress: UserProgress })[];
 }
 
 export const learningPathService = {
-    getLearningPaths: async (): Promise<LearningPath[]> => {
-        const response = await api.get<{ learning_paths: LearningPath[] }>('/learning-paths');
-        return response.data.learning_paths;
-    },
+  async getLearningPaths(category?: string): Promise<LearningPath[]> {
+    const params = category ? { category } : {};
+    const response = await api.get<LearningPathsResponse>('/learning-paths/', { params });
+    return response.data.learning_paths || [];
+  },
 
-    getLearningPath: async (id: number): Promise<LearningPath> => {
-        const response = await api.get<{ learning_path: LearningPath }>(`/learning-paths/${id}`);
-        return response.data.learning_path;
-    },
+  async getLearningPath(id: number): Promise<LearningPath> {
+    const response = await api.get<LearningPathResponse>(`/learning-paths/${id}`);
+    return response.data.learning_path;
+  },
 
-    createLearningPath: async (data: CreateLearningPathData): Promise<LearningPath> => {
-        const response = await api.post<{ learning_path: LearningPath; message: string }>('/learning-paths', data);
-        return response.data.learning_path;
-    },
+  async getMyPaths(): Promise<(LearningPath & { progress: UserProgress })[]> {
+    const response = await api.get<{ data: MyPathsResponse }>('/progress/my-paths');
+    return response.data.data?.paths || [];
+  },
 
-    addModule: async (pathId: number, data: CreateModuleData): Promise<Module> => {
-        const response = await api.post<{ module: Module; message: string }>(`/learning-paths/${pathId}/modules`, data);
-        return response.data.module;
-    },
+  async getPathProgress(pathId: number): Promise<ProgressResponse> {
+    const response = await api.get<{ data: ProgressResponse }>(`/progress/path/${pathId}`);
+    return response.data.data || { enrolled: false, progress: null };
+  },
 
-    ratePath: async (pathId: number, rating: number): Promise<number> => {
-        const response = await api.post<{ new_rating: number; message: string }>(`/learning-paths/${pathId}/rate`, { rating });
-        return response.data.new_rating;
-    },
+  async enrollInPath(pathId: number): Promise<UserProgress> {
+    const response = await api.post<{ data: { progress: UserProgress } }>(`/progress/enroll/${pathId}`);
+    return response.data.data?.progress;
+  },
+
+  async completeResource(resourceId: number, timeSpent?: number): Promise<{ xp_earned: number; total_xp: number }> {
+    const response = await api.post<{ data: { xp_earned: number; total_xp: number } }>(
+      `/progress/complete-resource/${resourceId}`,
+      { time_spent: timeSpent || 0 }
+    );
+    return response.data.data;
+  },
+
+  async completeModule(moduleId: number): Promise<{ xp_earned: number; progress: UserProgress }> {
+    const response = await api.post<{ data: { xp_earned: number; progress: UserProgress } }>(
+      `/progress/complete-module/${moduleId}`
+    );
+    return response.data.data;
+  },
+
+  async ratePath(pathId: number, rating: number): Promise<void> {
+    await api.post(`/learning-paths/${pathId}/rate`, { rating });
+  }
 };
