@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Trophy, Medal, Crown, Lock, Flame, Target, Calendar, Zap } from 'lucide-react';
+import { Trophy, Medal, Crown, Lock, Flame, Target, Calendar, Zap, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useGamificationStore } from '../stores/gamificationStore';
 import { useAuthStore } from '../stores/authStore';
@@ -13,11 +13,14 @@ export function Gamification() {
     userBadges,
     userRank,
     challenges,
+    achievementsProgress,
     fetchLeaderboard, 
     fetchBadges,
     fetchMyRank,
     fetchUserBadges,
-    fetchChallenges
+    fetchChallenges,
+    fetchAchievementsProgress,
+    checkBadges
   } = useGamificationStore();
   
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +35,7 @@ export function Gamification() {
           fetchBadges(),
           fetchMyRank(activePeriod),
           fetchChallenges(),
+          fetchAchievementsProgress(),
           user?.id ? fetchUserBadges(user.id) : Promise.resolve()
         ]);
       } finally {
@@ -39,7 +43,16 @@ export function Gamification() {
       }
     };
     loadData();
-  }, [activePeriod, fetchLeaderboard, fetchBadges, fetchMyRank, fetchChallenges, fetchUserBadges, user?.id]);
+  }, [activePeriod, fetchLeaderboard, fetchBadges, fetchMyRank, fetchChallenges, fetchAchievementsProgress, fetchUserBadges, user?.id]);
+
+  // Check for new badges on mount
+  useEffect(() => {
+    checkBadges().then((newBadges) => {
+      if (newBadges.length > 0 && user?.id) {
+        fetchUserBadges(user.id);
+      }
+    });
+  }, [checkBadges, fetchUserBadges, user?.id]);
 
   const handlePeriodChange = (period: 'weekly' | 'all_time') => {
     setActivePeriod(period);
@@ -258,6 +271,36 @@ export function Gamification() {
            
            <Medal className="absolute -bottom-4 -right-4 text-white/20 w-32 h-32 rotate-12" />
         </div>
+
+        {/* Achievements Progress */}
+        {achievementsProgress.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-base-content flex items-center gap-2"><CheckCircle2 size={20} className="text-green-500" />Milestones</h2>
+            {achievementsProgress.map((a) => {
+              const pct = a.target > 0 ? Math.min(100, Math.round((a.current / a.target) * 100)) : 0;
+              return (
+                <div key={a.id} className={clsx("bg-base-200 rounded-xl border p-4", a.unlocked ? "border-green-500/30" : "border-base-300")}>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-sm text-base-content">{a.name}</h4>
+                    {a.unlocked ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 uppercase">Unlocked</span>
+                    ) : (
+                      <span className="text-xs text-base-content/60">{a.current}/{a.target}</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-base-content/60 mb-2">{a.description}</p>
+                  <div className="h-2 bg-base-300 rounded-full overflow-hidden">
+                    <div className={clsx("h-full rounded-full transition-all", a.unlocked ? "bg-green-500" : "bg-primary")} style={{ width: `${pct}%` }}></div>
+                  </div>
+                  <div className="flex items-center justify-between mt-1 text-[10px] text-base-content/40">
+                    <span>{pct}%</span>
+                    <span>+{a.xp_reward} XP</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Challenges Section */}
         {challenges.length > 0 && (

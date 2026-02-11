@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Save, ArrowRight, ArrowLeft, Upload, Plus, Trash2, FileText, Video, CheckCircle2, Link } from 'lucide-react';
+import { Save, ArrowRight, ArrowLeft, Upload, Plus, Trash2, FileText, Video, CheckCircle2, Link, BarChart3, BookOpen, Users, Eye, Star, Clock, PenTool } from 'lucide-react';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import api from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 interface ModuleForm {
   title: string;
@@ -11,7 +12,26 @@ interface ModuleForm {
   resources: { title: string; type: 'video' | 'article'; url: string }[];
 }
 
+interface MyPath {
+  id: number;
+  title: string;
+  category: string;
+  difficulty: string;
+  is_published: boolean;
+  is_approved: boolean;
+  enrolled_count: number;
+  rating: number;
+  total_ratings: number;
+  created_at: string;
+  modules?: { id: number; title: string; resources?: any[] }[];
+}
+
 export function CreatorStudio() {
+  const { user } = useAuthStore();
+  const [activeView, setActiveView] = useState<'dashboard' | 'create'>('dashboard');
+  const [myPaths, setMyPaths] = useState<MyPath[]>([]);
+  const [loadingPaths, setLoadingPaths] = useState(true);
+
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
@@ -26,6 +46,26 @@ export function CreatorStudio() {
   const [modules, setModules] = useState<ModuleForm[]>([
     { title: 'Module 1', description: '', resources: [{ title: '', type: 'video', url: '' }] }
   ]);
+
+  useEffect(() => {
+    loadMyPaths();
+  }, []);
+
+  const loadMyPaths = async () => {
+    setLoadingPaths(true);
+    try {
+      const res = await api.get('/learning-paths/');
+      const allPaths = res.data.learning_paths || [];
+      // Filter paths created by the current user
+      const mine = allPaths.filter((p: any) => p.creator_id === user?.id);
+      setMyPaths(mine);
+    } catch {
+      // fallback - show all paths for admin
+      setMyPaths([]);
+    } finally {
+      setLoadingPaths(false);
+    }
+  };
 
   const steps = [
     { num: 1, label: "Basic Info" },
@@ -67,7 +107,7 @@ export function CreatorStudio() {
     setModules(updated);
   };
 
-  const totalResources = modules.reduce((sum, m) => sum + m.resources.filter(r => r.title).length, 0);
+  const formTotalResources = modules.reduce((sum, m) => sum + m.resources.filter(r => r.title).length, 0);
 
   const handlePublish = async () => {
     setIsSubmitting(true);
@@ -125,10 +165,16 @@ export function CreatorStudio() {
           </div>
           <h2 className="text-3xl font-bold text-base-content mb-3">Learning Path Published!</h2>
           <p className="text-base-content/60 mb-8">Your learning path "{title}" has been submitted and is pending admin approval.</p>
-          <button onClick={() => { setIsPublished(false); setStep(1); setTitle(''); setDescription(''); setModules([{ title: 'Module 1', description: '', resources: [{ title: '', type: 'video', url: '' }] }]); }}
-            className="px-8 py-3 bg-primary text-primary-content rounded-xl font-bold hover:bg-primary/90 transition-colors">
-            Create Another
-          </button>
+          <div className="flex gap-4 justify-center">
+            <button onClick={() => { setIsPublished(false); setStep(1); setTitle(''); setDescription(''); setModules([{ title: 'Module 1', description: '', resources: [{ title: '', type: 'video', url: '' }] }]); }}
+              className="px-8 py-3 bg-primary text-primary-content rounded-xl font-bold hover:bg-primary/90 transition-colors">
+              Create Another
+            </button>
+            <button onClick={() => { setIsPublished(false); setActiveView('dashboard'); loadMyPaths(); }}
+              className="px-8 py-3 border border-base-300 text-base-content rounded-xl font-bold hover:bg-base-300/30 transition-colors">
+              View My Content
+            </button>
+          </div>
         </motion.div>
       </div>
     );
@@ -136,11 +182,113 @@ export function CreatorStudio() {
 
   const inputClass = "w-full px-4 py-3 bg-base-300/20 border border-base-300 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all";
 
+  const totalModules = myPaths.reduce((sum, p) => sum + (p.modules?.length || 0), 0);
+  const totalResources = myPaths.reduce((sum, p) => sum + (p.modules?.reduce((s, m) => s + (m.resources?.length || 0), 0) || 0), 0);
+  const totalEnrolled = myPaths.reduce((sum, p) => sum + (p.enrolled_count || 0), 0);
+
+  // Creator Dashboard view
+  if (activeView === 'dashboard') {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-base-content flex items-center gap-3">
+              <PenTool className="text-primary" /> Creator Studio
+            </h1>
+            <p className="text-base-content/60 mt-1">Manage your learning paths and track their performance.</p>
+          </div>
+          <button
+            onClick={() => setActiveView('create')}
+            className="px-6 py-3 bg-primary text-primary-content rounded-xl font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center gap-2"
+          >
+            <Plus size={18} /> Create New Path
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'My Paths', value: myPaths.length, icon: BookOpen, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+            { label: 'Total Modules', value: totalModules, icon: FileText, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+            { label: 'Total Learners', value: totalEnrolled, icon: Users, color: 'text-green-500', bg: 'bg-green-500/10' },
+            { label: 'Avg Rating', value: myPaths.length > 0 ? (myPaths.reduce((s, p) => s + (p.rating || 0), 0) / myPaths.length).toFixed(1) : '—', icon: Star, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
+          ].map((stat, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+              className="bg-base-200 p-6 rounded-2xl border border-base-300 shadow-sm flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-base-content/60">{stat.label}</p>
+                <h3 className="text-2xl font-bold mt-1 text-base-content">{stat.value}</h3>
+              </div>
+              <div className={clsx("p-3 rounded-xl", stat.bg, stat.color)}><stat.icon size={20} /></div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* My Content */}
+        <div className="bg-base-200 rounded-2xl border border-base-300 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-base-300 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-base-content flex items-center gap-2">
+              <BarChart3 size={20} className="text-primary" /> My Learning Paths
+            </h2>
+          </div>
+
+          {loadingPaths ? (
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent mx-auto"></div>
+            </div>
+          ) : myPaths.length === 0 ? (
+            <div className="p-12 text-center">
+              <BookOpen size={48} className="mx-auto text-base-content/20 mb-4" />
+              <p className="text-base-content/60 mb-4">You haven't created any learning paths yet.</p>
+              <button onClick={() => setActiveView('create')} className="px-6 py-2 bg-primary text-primary-content rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors">
+                Create Your First Path
+              </button>
+            </div>
+          ) : (
+            <div className="divide-y divide-base-300">
+              {myPaths.map((path) => (
+                <div key={path.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-base-300/20 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-bold text-base-content truncate">{path.title}</h3>
+                      <span className={clsx(
+                        "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                        path.is_approved ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                      )}>
+                        {path.is_approved ? 'Approved' : 'Pending'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-base-content/60">
+                      <span className="flex items-center gap-1"><BookOpen size={12} /> {path.modules?.length || 0} modules</span>
+                      <span className="flex items-center gap-1"><Users size={12} /> {path.enrolled_count} enrolled</span>
+                      <span className="flex items-center gap-1"><Star size={12} className="text-yellow-500" /> {path.rating?.toFixed(1) || '—'}</span>
+                      <span className="flex items-center gap-1"><Clock size={12} /> {new Date(path.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="px-3 py-1 bg-base-300/50 rounded-full text-xs font-medium text-base-content/60 capitalize">{path.difficulty}</span>
+                    <span className="px-3 py-1 bg-base-300/50 rounded-full text-xs font-medium text-base-content/60">{path.category}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Create new path view
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content">Create New Learning Path</h1>
-        <p className="text-base-content/60">Share your knowledge with the community.</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-base-content">Create New Learning Path</h1>
+          <p className="text-base-content/60">Share your knowledge with the community.</p>
+        </div>
+        <button onClick={() => setActiveView('dashboard')} className="px-4 py-2 text-base-content/60 hover:text-base-content hover:bg-base-300 rounded-lg transition-colors text-sm font-medium flex items-center gap-2">
+          <ArrowLeft size={16} /> Back to Studio
+        </button>
       </div>
 
       {/* Progress Stepper */}
@@ -276,7 +424,7 @@ export function CreatorStudio() {
                  <li className="flex justify-between"><span>Category:</span> <span className="font-medium text-base-content">{category}</span></li>
                  <li className="flex justify-between"><span>Difficulty:</span> <span className="font-medium text-base-content capitalize">{difficulty}</span></li>
                  <li className="flex justify-between"><span>Modules:</span> <span className="font-medium text-base-content">{modules.length}</span></li>
-                 <li className="flex justify-between"><span>Resources:</span> <span className="font-medium text-base-content">{totalResources}</span></li>
+                 <li className="flex justify-between"><span>Resources:</span> <span className="font-medium text-base-content">{formTotalResources}</span></li>
                  <li className="flex justify-between"><span>XP Reward:</span> <span className="font-medium text-base-content">{modules.length * 100}</span></li>
                </ul>
              </div>

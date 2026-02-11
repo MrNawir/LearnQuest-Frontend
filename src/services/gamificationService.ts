@@ -24,6 +24,18 @@ interface UserRankResponse {
   total_users: number;
 }
 
+export interface AchievementProgress {
+  id: number;
+  name: string;
+  description: string;
+  icon_url?: string;
+  xp_reward: number;
+  points_reward: number;
+  current: number;
+  target: number;
+  unlocked: boolean;
+}
+
 interface StreakResponse {
   streak_days: number;
   message: string;
@@ -81,5 +93,15 @@ export const gamificationService = {
   async getStreakStatus(): Promise<{ streak_days: number; status: string; message: string }> {
     const response = await api.get<{ data: { streak_days: number; status: string; message: string } }>('/gamification/streak/status');
     return response.data.data;
+  },
+
+  async checkBadges(): Promise<{ new_badges: Badge[]; total_badges: number; xp_bonus: number }> {
+    const response = await api.post<{ data: { new_badges: Badge[]; total_badges: number; xp_bonus: number } }>('/gamification/badges/check');
+    return response.data.data;
+  },
+
+  async getAchievementsProgress(): Promise<AchievementProgress[]> {
+    const response = await api.get<{ data: { achievements: AchievementProgress[] } }>('/gamification/achievements/progress');
+    return response.data.data?.achievements || [];
   }
 };

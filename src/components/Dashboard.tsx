@@ -9,9 +9,11 @@ import { useGamificationStore } from '../stores/gamificationStore';
 interface DashboardProps {
   onViewLearning?: () => void;
   onStartLesson?: (pathId?: number) => void;
+  onStartQuiz?: (quizId: number) => void;
+  onViewGamification?: () => void;
 }
 
-export function Dashboard({ onViewLearning, onStartLesson }: DashboardProps) {
+export function Dashboard({ onViewLearning, onStartLesson, onStartQuiz, onViewGamification }: DashboardProps) {
   const { user } = useAuthStore();
   const { myPaths, fetchMyPaths, paths, fetchPaths } = useLearningStore();
   const { challenges, fetchChallenges, userRank, fetchMyRank } = useGamificationStore();
@@ -210,17 +212,17 @@ export function Dashboard({ onViewLearning, onStartLesson }: DashboardProps) {
 
               <button 
                 onClick={() => {
-                  // Navigate to first available learning path
-                  const firstPath = myPaths[0] || paths[0];
-                  if (firstPath) {
-                    onStartLesson?.(firstPath.id);
+                  // Navigate to quiz for the challenge
+                  if (onStartQuiz) {
+                    // Try quiz 1 (first seeded quiz)
+                    onStartQuiz(1);
                   } else {
-                    onViewLearning?.();
+                    onViewGamification?.();
                   }
                 }}
                 className="w-full py-3 bg-primary text-primary-content rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all"
               >
-                Continue Challenge
+                Start Challenge
               </button>
             </div>
           </div>

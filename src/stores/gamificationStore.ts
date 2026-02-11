@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { gamificationService } from '../services/gamificationService';
+import type { AchievementProgress } from '../services/gamificationService';
 import type { Badge, UserBadge, Challenge, LeaderboardEntry } from '../types';
 
 interface GamificationState {
@@ -8,6 +9,7 @@ interface GamificationState {
   leaderboard: LeaderboardEntry[];
   userRank: number | null;
   challenges: Challenge[];
+  achievementsProgress: AchievementProgress[];
   leaderboardPeriod: string;
   isLoading: boolean;
   error: string | null;
@@ -17,6 +19,8 @@ interface GamificationState {
   fetchLeaderboard: (period?: string, limit?: number) => Promise<void>;
   fetchMyRank: (period?: string) => Promise<void>;
   fetchChallenges: () => Promise<void>;
+  checkBadges: () => Promise<Badge[]>;
+  fetchAchievementsProgress: () => Promise<void>;
   updateStreak: () => Promise<{ streak_days: number; xp_earned: number }>;
   clearError: () => void;
 }
@@ -27,6 +31,7 @@ export const useGamificationStore = create<GamificationState>((set) => ({
   leaderboard: [],
   userRank: null,
   challenges: [],
+  achievementsProgress: [],
   leaderboardPeriod: 'weekly',
   isLoading: false,
   error: null,
@@ -85,6 +90,24 @@ export const useGamificationStore = create<GamificationState>((set) => ({
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch challenges';
       set({ error: errorMessage, isLoading: false });
+    }
+  },
+
+  checkBadges: async () => {
+    try {
+      const result = await gamificationService.checkBadges();
+      return result.new_badges;
+    } catch {
+      return [];
+    }
+  },
+
+  fetchAchievementsProgress: async () => {
+    try {
+      const achievementsProgress = await gamificationService.getAchievementsProgress();
+      set({ achievementsProgress });
+    } catch (error: unknown) {
+      console.error('Failed to fetch achievements progress:', error);
     }
   },
 

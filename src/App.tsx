@@ -10,7 +10,8 @@ import { LessonView } from './components/LessonView';
 import { ContactUs } from './components/ContactUs';
 import { Settings } from './components/Settings';
 import { Quiz } from './components/Quiz';
-import { AdminDashboard } from './components/AdminDashboard';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+import { Onboarding } from './components/Onboarding';
 import { AnimatePresence } from 'motion/react';
 import { Toaster } from 'sonner';
 import { useAuthStore } from './stores/authStore';
@@ -23,6 +24,7 @@ export default function App() {
   const [showContact, setShowContact] = useState(false);
   const [activeQuizId, setActiveQuizId] = useState<number | null>(null);
   const [activeLessonPathId, setActiveLessonPathId] = useState<number | undefined>(undefined);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const { user, isAuthenticated, isLoading, checkAuth, logout } = useAuthStore();
 
@@ -32,6 +34,25 @@ export default function App() {
 
   const handleLoginSuccess = () => {
     setIsAuthOpen(false);
+    // Show onboarding for first-time users
+    const onboarded = localStorage.getItem('learnquest_onboarded');
+    if (!onboarded) {
+      setShowOnboarding(true);
+      return;
+    }
+    // Auto-route based on role after login
+    routeByRole();
+  };
+
+  const routeByRole = () => {
+    const role = useAuthStore.getState().user?.role?.toLowerCase();
+    if (role === 'admin') {
+      setActiveTab('admin');
+    } else if (role === 'contributor') {
+      setActiveTab('creator');
+    } else {
+      setActiveTab('dashboard');
+    }
   };
 
   const handleLogout = () => {
@@ -59,7 +80,8 @@ export default function App() {
     setActiveQuizId(null);
   };
 
-  const userRole = (user?.role || 'learner') as 'Learner' | 'Contributor' | 'Admin';
+  const rawRole = (user?.role || 'learner').toLowerCase();
+  const userRole = (rawRole === 'admin' ? 'Admin' : rawRole === 'contributor' ? 'Contributor' : 'Learner') as 'Learner' | 'Contributor' | 'Admin';
 
   const renderContent = () => {
     if (activeQuizId) {
@@ -72,7 +94,7 @@ export default function App() {
 
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard onViewLearning={() => setActiveTab('learning-path')} onStartLesson={(pathId) => handleLessonStart(pathId)} />;
+        return <Dashboard onViewLearning={() => setActiveTab('learning-path')} onStartLesson={(pathId) => handleLessonStart(pathId)} onStartQuiz={(quizId) => setActiveQuizId(quizId)} onViewGamification={() => setActiveTab('gamification')} />;
       case 'learning-path':
         return <LearningPath onStartLesson={(pathId) => handleLessonStart(pathId)} />;
       case 'gamification':
@@ -88,12 +110,31 @@ export default function App() {
     }
   };
 
+  if (showOnboarding && isAuthenticated) {
+    return (
+      <Onboarding
+        userName={user?.username?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+        onComplete={() => {
+          setShowOnboarding(false);
+          routeByRole();
+        }}
+      />
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-base-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-base-content/60">Loading...</p>
+          <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4 animate-pulse">
+            L
+          </div>
+          <h2 className="text-xl font-bold text-base-content mb-2">LearnQuest</h2>
+          <div className="flex items-center justify-center gap-1 mt-3">
+            <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
         </div>
       </div>
     );
