@@ -239,59 +239,57 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
       </main>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-base-300 bg-base-200">
-         <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
-              {/* Brand */}
-              <div className="col-span-2 md:col-span-1">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-sm">
-                    L
-                  </div>
-                  <span className="font-bold text-lg text-base-content">LearnQuest</span>
-                </div>
-                <p className="text-sm text-base-content/50 leading-relaxed">
-                  A gamified, community-driven learning platform.
-                </p>
+      <footer className="bg-neutral text-neutral-content">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="border border-neutral-content/10 rounded-2xl p-10 md:p-14">
+            {/* Logo */}
+            <div className="flex items-center gap-2.5 mb-10">
+              <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg">
+                L
               </div>
+              <span className="font-bold text-xl text-neutral-content">LearnQuest</span>
+            </div>
 
+            {/* Column Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-16 gap-y-10">
               {/* Platform */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/40 mb-4">Platform</h4>
-                <ul className="space-y-2.5 text-sm">
-                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Learning Paths</button></li>
-                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Challenges</button></li>
-                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Leaderboard</button></li>
-                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Creator Studio</button></li>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Platform</h4>
+                <ul className="space-y-3 text-sm">
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Learning Paths</button></li>
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Challenges</button></li>
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Leaderboard</button></li>
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Creator Studio</button></li>
                 </ul>
               </div>
 
               {/* Company */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/40 mb-4">Company</h4>
-                <ul className="space-y-2.5 text-sm">
-                  <li><button onClick={onOpenAbout} className="text-base-content/60 hover:text-base-content transition-colors">About us</button></li>
-                  <li><button onClick={onOpenContact} className="text-base-content/60 hover:text-base-content transition-colors">Contact</button></li>
-                  <li><button onClick={onOpenPrivacy} className="text-base-content/60 hover:text-base-content transition-colors">Privacy policy</button></li>
-                  <li><button onClick={onOpenTerms} className="text-base-content/60 hover:text-base-content transition-colors">Terms of service</button></li>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Company</h4>
+                <ul className="space-y-3 text-sm">
+                  <li><button onClick={onOpenAbout} className="text-neutral-content/70 hover:text-neutral-content transition-colors">About us</button></li>
+                  <li><button onClick={onOpenContact} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Contact</button></li>
+                  <li><button onClick={onOpenPrivacy} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Privacy policy</button></li>
+                  <li><button onClick={onOpenTerms} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Terms of service</button></li>
                 </ul>
               </div>
 
               {/* Resources */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/40 mb-4">Resources</h4>
-                <ul className="space-y-2.5 text-sm">
-                  <li><a href="#features" className="text-base-content/60 hover:text-base-content transition-colors">Features</a></li>
-                  <li><a href="#how-it-works" className="text-base-content/60 hover:text-base-content transition-colors">How it Works</a></li>
-                  <li><a href="#community" className="text-base-content/60 hover:text-base-content transition-colors">Community</a></li>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Resources</h4>
+                <ul className="space-y-3 text-sm">
+                  <li><a href="#features" className="text-neutral-content/70 hover:text-neutral-content transition-colors">Features</a></li>
+                  <li><a href="#how-it-works" className="text-neutral-content/70 hover:text-neutral-content transition-colors">How it Works</a></li>
+                  <li><a href="#community" className="text-neutral-content/70 hover:text-neutral-content transition-colors">Community</a></li>
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="pt-8 border-t border-base-300 text-center text-sm text-base-content/40">
-              &copy; {new Date().getFullYear()} LearnQuest. All rights reserved.
-            </div>
-         </div>
+        <div className="border-t border-neutral-content/10 py-5 text-center text-xs text-neutral-content/30">
+          &copy; {new Date().getFullYear()} LearnQuest. All rights reserved.
+        </div>
       </footer>
     </div>
   );
