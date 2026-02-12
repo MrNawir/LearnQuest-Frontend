@@ -1,6 +1,5 @@
 # LearnQuest Frontend
 
-# LearnQuest Frontend
 
 **A modern, gamified e-learning interface built with React, TypeScript, and TailwindCSS.**
 
