@@ -1,4 +1,4 @@
-<div align="center">
+# LearnQuest Frontend
 
 # LearnQuest Frontend
 
@@ -46,6 +46,14 @@ The application communicates with a Flask REST API and is deployed as static fil
 ---
 
 ## Features
+- Modern, responsive UI with TailwindCSS
+- User Authentication (Login/Register)
+- Role-based Dashboard (Learner, Contributor, Admin)
+- Learning Path Browser & Progress Tracking
+- Gamification Display (XP, Badges, Achievements)
+- Creator Studio for Contributors
+- Animated transitions with Framer Motion
+- State Management with Zustand
 
 | Area | Details |
 |------|---------|
