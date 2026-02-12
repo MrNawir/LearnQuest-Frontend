@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   BookOpen, 
   LayoutDashboard, 
@@ -16,11 +16,15 @@ import {
   Flame,
   Star,
   CheckCircle2,
-  Gift
+  Gift,
+  X,
+  Layers,
+  FileText
 } from 'lucide-react';
 import type { User } from '../types';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'motion/react';
+import { learningPathService } from '../services/learningPathService';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -31,6 +35,7 @@ interface LayoutProps {
   isLoggedIn: boolean;
   onLogout?: () => void;
   user?: User | null;
+  onStartLesson?: (pathId?: number) => void;
 }
 
 const NOTIFICATIONS = [
@@ -40,22 +45,50 @@ const NOTIFICATIONS = [
   { id: 4, icon: Gift, color: 'text-purple-500', bg: 'bg-purple-500/10', title: 'New challenge available', desc: 'A weekly challenge is waiting for you.', time: '1d ago', read: true },
 ];
 
-export function Layout({ children, activeTab, setActiveTab, userRole, onOpenAuth, isLoggedIn, onLogout, user }: LayoutProps) {
+export function Layout({ children, activeTab, setActiveTab, userRole, onOpenAuth, isLoggedIn, onLogout, user, onStartLesson }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchResults, setSearchResults] = useState<{ paths: any[]; modules: any[]; resources: any[] }>({ paths: [], modules: [], resources: [] });
+  const [searchLoading, setSearchLoading] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifications(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const doSearch = useCallback(async (q: string) => {
+    if (q.length < 2) { setSearchResults({ paths: [], modules: [], resources: [] }); return; }
+    setSearchLoading(true);
+    try {
+      const data = await learningPathService.search(q);
+      setSearchResults(data);
+    } catch { setSearchResults({ paths: [], modules: [], resources: [] }); }
+    finally { setSearchLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => doSearch(searchQuery), 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [searchQuery, doSearch]);
+
+  const hasResults = searchResults.paths.length > 0 || searchResults.modules.length > 0 || searchResults.resources.length > 0;
+  const showSearchDropdown = searchFocused && searchQuery.length >= 2;
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const markAllRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -197,13 +230,93 @@ export function Layout({ children, activeTab, setActiveTab, userRole, onOpenAuth
               <Menu size={20} />
             </button>
 
-            <div className="relative hidden sm:block w-64 md:w-80">
+            <div className="relative hidden sm:block w-64 md:w-80" ref={searchRef}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60" size={16} />
               <input 
-                type="text" 
-                placeholder="Search paths, mentors, quizzes..." 
-                className="w-full pl-10 pr-4 py-2 bg-base-300/30 border border-transparent focus:border-primary focus:bg-base-100 focus:ring-2 focus:ring-primary/20 rounded-full text-sm transition-all outline-none"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                placeholder="Search paths, modules, resources..." 
+                className="w-full pl-10 pr-8 py-2 bg-base-300/30 border border-transparent focus:border-primary focus:bg-base-100 focus:ring-2 focus:ring-primary/20 rounded-full text-sm transition-all outline-none"
               />
+              {searchQuery && (
+                <button onClick={() => { setSearchQuery(''); setSearchFocused(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content/70">
+                  <X size={14} />
+                </button>
+              )}
+
+              <AnimatePresence>
+                {showSearchDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 right-0 top-12 bg-base-200 border border-base-300 rounded-2xl shadow-xl overflow-hidden z-50 max-h-[420px] overflow-y-auto"
+                  >
+                    {searchLoading ? (
+                      <div className="p-6 text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mx-auto mb-2"></div>
+                        <p className="text-sm text-base-content/60">Searching...</p>
+                      </div>
+                    ) : !hasResults ? (
+                      <div className="p-6 text-center">
+                        <Search size={24} className="mx-auto text-base-content/20 mb-2" />
+                        <p className="text-sm text-base-content/60">No results for "{searchQuery}"</p>
+                      </div>
+                    ) : (
+                      <>
+                        {searchResults.paths.length > 0 && (
+                          <div>
+                            <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-base-content/40">Learning Paths</div>
+                            {searchResults.paths.map((p: any) => (
+                              <button key={`p-${p.id}`} onClick={() => { setActiveTab('learning-path'); setSearchQuery(''); setSearchFocused(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-base-300/40 transition-colors text-left">
+                                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><BookOpen size={14} className="text-primary" /></div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-base-content truncate">{p.title}</p>
+                                  <p className="text-[11px] text-base-content/50">{p.category} · {p.difficulty}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {searchResults.modules.length > 0 && (
+                          <div>
+                            <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-base-content/40 border-t border-base-300">Modules</div>
+                            {searchResults.modules.map((m: any) => (
+                              <button key={`m-${m.id}`} onClick={() => { setActiveTab('learning-path'); setSearchQuery(''); setSearchFocused(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-base-300/40 transition-colors text-left">
+                                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0"><Layers size={14} className="text-blue-500" /></div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-base-content truncate">{m.title}</p>
+                                  <p className="text-[11px] text-base-content/50">in {m.path_title}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {searchResults.resources.length > 0 && (
+                          <div>
+                            <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-base-content/40 border-t border-base-300">Resources</div>
+                            {searchResults.resources.map((r: any) => (
+                              <button key={`r-${r.id}`} onClick={() => { if (onStartLesson) onStartLesson(r.path_id); setSearchQuery(''); setSearchFocused(false); }}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-base-300/40 transition-colors text-left">
+                                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0"><FileText size={14} className="text-green-500" /></div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-base-content truncate">{r.title}</p>
+                                  <p className="text-[11px] text-base-content/50">in {r.path_title}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 

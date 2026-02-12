@@ -5,8 +5,7 @@ import {
   Users,
   ArrowRight,
   CheckCircle2,
-  Zap,
-  Globe
+  Zap
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -97,7 +96,10 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
                 >
                   Start Your Journey <ArrowRight size={20} />
                 </button>
-                <button className="px-8 py-4 bg-base-100 border border-base-300 text-base-content rounded-xl font-bold text-lg hover:bg-base-300/50 transition-colors">
+                <button 
+                  onClick={onOpenAuth}
+                  className="px-8 py-4 bg-base-100 border border-base-300 text-base-content rounded-xl font-bold text-lg hover:bg-base-300/50 transition-colors"
+                >
                   Explore Courses
                 </button>
               </motion.div>
@@ -237,27 +239,57 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
       </main>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-base-300 bg-base-200">
-         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-base-300 flex items-center justify-center text-base-content/60 font-bold text-sm">
-                L
+      <footer className="py-16 px-6 border-t border-base-300 bg-base-200">
+         <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+              {/* Brand */}
+              <div className="col-span-2 md:col-span-1">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-sm">
+                    L
+                  </div>
+                  <span className="font-bold text-lg text-base-content">LearnQuest</span>
+                </div>
+                <p className="text-sm text-base-content/50 leading-relaxed">
+                  A gamified, community-driven learning platform.
+                </p>
               </div>
-              <span className="font-bold text-base-content">LearnQuest</span>
+
+              {/* Platform */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/40 mb-4">Platform</h4>
+                <ul className="space-y-2.5 text-sm">
+                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Learning Paths</button></li>
+                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Challenges</button></li>
+                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Leaderboard</button></li>
+                  <li><button onClick={onOpenAuth} className="text-base-content/60 hover:text-base-content transition-colors">Creator Studio</button></li>
+                </ul>
+              </div>
+
+              {/* Company */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/40 mb-4">Company</h4>
+                <ul className="space-y-2.5 text-sm">
+                  <li><button onClick={onOpenAbout} className="text-base-content/60 hover:text-base-content transition-colors">About us</button></li>
+                  <li><button onClick={onOpenContact} className="text-base-content/60 hover:text-base-content transition-colors">Contact</button></li>
+                  <li><button onClick={onOpenPrivacy} className="text-base-content/60 hover:text-base-content transition-colors">Privacy policy</button></li>
+                  <li><button onClick={onOpenTerms} className="text-base-content/60 hover:text-base-content transition-colors">Terms of service</button></li>
+                </ul>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/40 mb-4">Resources</h4>
+                <ul className="space-y-2.5 text-sm">
+                  <li><a href="#features" className="text-base-content/60 hover:text-base-content transition-colors">Features</a></li>
+                  <li><a href="#how-it-works" className="text-base-content/60 hover:text-base-content transition-colors">How it Works</a></li>
+                  <li><a href="#community" className="text-base-content/60 hover:text-base-content transition-colors">Community</a></li>
+                </ul>
+              </div>
             </div>
-            
-            <div className="flex gap-8 text-sm text-base-content/60">
-               <button onClick={onOpenAbout} className="hover:text-base-content">About</button>
-               <button onClick={onOpenPrivacy} className="hover:text-base-content">Privacy</button>
-               <button onClick={onOpenTerms} className="hover:text-base-content">Terms</button>
-               <button onClick={onOpenContact} className="hover:text-base-content">Contact</button>
-            </div>
-            
-            <div className="flex gap-4">
-               <div className="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center text-base-content/60 hover:bg-accent hover:text-white transition-colors cursor-pointer">
-                  <Globe size={16} />
-               </div>
-               {/* Add social icons if needed */}
+
+            <div className="pt-8 border-t border-base-300 text-center text-sm text-base-content/40">
+              &copy; {new Date().getFullYear()} LearnQuest. All rights reserved.
             </div>
          </div>
       </footer>

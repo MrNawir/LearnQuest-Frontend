@@ -200,6 +200,7 @@ export default function App() {
         isLoggedIn={isAuthenticated}
         onLogout={handleLogout}
         user={user}
+        onStartLesson={(pathId) => handleLessonStart(pathId)}
       >
         <AnimatePresence mode="wait">
           <div key={activeQuizId ? `quiz-${activeQuizId}` : isInLessonMode ? 'lesson' : activeTab} className="h-full">
@@ -217,7 +218,7 @@ export default function App() {
           />
         )}
       </AnimatePresence>
-      <Toaster position="top-right" richColors closeButton />
+      <Toaster position="bottom-right" richColors closeButton />
     </>
   );
 }

@@ -62,5 +62,14 @@ export const learningPathService = {
 
   async ratePath(pathId: number, rating: number): Promise<void> {
     await api.post(`/learning-paths/${pathId}/rate`, { rating });
+  },
+
+  async search(query: string): Promise<{
+    paths: { id: number; title: string; category: string; difficulty: string }[];
+    modules: { id: number; title: string; learning_path_id: number; path_title: string }[];
+    resources: { id: number; title: string; module_id: number; path_id: number; path_title: string }[];
+  }> {
+    const response = await api.get('/learning-paths/search', { params: { q: query } });
+    return response.data;
   }
 };
