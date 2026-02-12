@@ -17,6 +17,7 @@ import clsx from 'clsx';
 import { toast } from 'sonner';
 import { useLearningStore } from '../stores/learningStore';
 import { useAuthStore } from '../stores/authStore';
+import { useGamificationStore } from '../stores/gamificationStore';
 import { commentService, type Comment as ApiComment } from '../services/commentService';
 
 interface LessonItem {
@@ -59,6 +60,7 @@ export function LessonView({ onBack, pathId, initialLessonIndex = 0 }: LessonVie
   
   const { currentPath, currentProgress, fetchPath, completeResource } = useLearningStore();
   const { user } = useAuthStore();
+  const { checkBadges } = useGamificationStore();
 
   useEffect(() => {
     if (pathId) {
@@ -160,6 +162,21 @@ export function LessonView({ onBack, pathId, initialLessonIndex = 0 }: LessonVie
       try {
         await completeResource(currentLesson.id, 300);
         toast.success(`Lesson completed! +${currentLesson.xpReward} XP earned`);
+        
+        // Check for new badges after completing a resource
+        try {
+          const newBadges = await checkBadges();
+          if (newBadges && newBadges.length > 0) {
+            newBadges.forEach((badge: { name: string }) => {
+              toast.success(`🏆 Badge Unlocked: ${badge.name}!`, {
+                duration: 5000,
+                description: 'Check your Achievements page to see all your badges.',
+              });
+            });
+          }
+        } catch {
+          // Badge check failed silently
+        }
       } catch {
         toast.info('Lesson marked complete');
       }

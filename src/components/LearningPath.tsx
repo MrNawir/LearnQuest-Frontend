@@ -319,10 +319,16 @@ export function LearningPath({ onStartLesson }: { onStartLesson?: (pathId?: numb
           {/* Mentor Card */}
           <div className="bg-base-200 p-6 rounded-2xl border border-base-300 shadow-sm text-center">
              <div className="w-20 h-20 rounded-full bg-base-300 mx-auto mb-4 overflow-hidden border-4 border-base-100 shadow-sm">
-               <img src={MENTOR_IMAGES[selectedPathIdx % MENTOR_IMAGES.length]} alt="Mentor" className="w-full h-full object-cover" />
+               {activePath?.creator_avatar ? (
+                 <img src={activePath.creator_avatar} alt="Creator" className="w-full h-full object-cover" />
+               ) : (
+                 <img src={MENTOR_IMAGES[selectedPathIdx % MENTOR_IMAGES.length]} alt="Creator" className="w-full h-full object-cover" />
+               )}
              </div>
-             <h3 className="font-bold text-base-content text-lg">Dr. Sarah Jensen</h3>
-             <p className="text-base-content/60 text-sm mb-4">Senior Software Engineer @ TechCorp</p>
+             <h3 className="font-bold text-base-content text-lg">
+               {activePath?.creator_name?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Course Creator'}
+             </h3>
+             <p className="text-base-content/60 text-sm mb-4">Course Creator</p>
              <button className="w-full py-2.5 bg-base-300 text-base-content rounded-lg text-sm font-medium hover:bg-base-300/80 transition-colors">
                View Profile
              </button>

@@ -194,28 +194,6 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-20 px-6">
-           <div className="max-w-7xl mx-auto bg-primary text-primary-content rounded-3xl p-12 md:p-20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-              
-              <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                 {[
-                   { val: "50k+", label: "Active Learners" },
-                   { val: "1,200+", label: "Courses Created" },
-                   { val: "95%", label: "Completion Rate" },
-                   { val: "4.9/5", label: "User Rating" },
-                 ].map((stat, i) => (
-                   <div key={i}>
-                      <div className="text-4xl md:text-5xl font-extrabold mb-2">{stat.val}</div>
-                      <div className="text-primary-content/70 font-medium">{stat.label}</div>
-                   </div>
-                 ))}
-              </div>
-           </div>
-        </section>
-
         {/* CTA Section */}
         <section className="py-20 px-6 text-center">
            <div className="max-w-3xl mx-auto">
@@ -262,7 +240,6 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
                 <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Company</h4>
                 <ul className="space-y-3 text-sm">
                   <li><button onClick={onOpenAbout} className="text-neutral-content/70 hover:text-neutral-content transition-colors">About us</button></li>
-                  <li><button onClick={onOpenContact} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Contact</button></li>
                   <li><button onClick={onOpenPrivacy} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Privacy policy</button></li>
                   <li><button onClick={onOpenTerms} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Terms of service</button></li>
                 </ul>
