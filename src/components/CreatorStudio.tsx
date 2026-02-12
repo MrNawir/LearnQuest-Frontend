@@ -406,17 +406,21 @@ export function CreatorStudio() {
                   
                   {mod.resources.map((res, resIdx) => (
                     <div key={resIdx} className="flex items-center gap-3 p-3 border border-base-300 rounded-lg bg-base-300/10">
-                      {res.type === 'video' ? <Video size={18} className="text-base-content/60 shrink-0" /> : <FileText size={18} className="text-base-content/60 shrink-0" />}
+                      {res.type === 'video' ? <Video size={18} className="text-blue-500 shrink-0" /> : <FileText size={18} className="text-orange-500 shrink-0" />}
                       <input type="text" value={res.title} onChange={e => updateResource(modIdx, resIdx, 'title', e.target.value)} placeholder="Resource title" className="bg-transparent border-none outline-none text-sm font-medium flex-1 min-w-0" />
                       <select value={res.type} onChange={e => updateResource(modIdx, resIdx, 'type', e.target.value)} className="text-xs bg-base-300/20 border border-base-300 rounded px-2 py-1 outline-none">
                         <option value="video">Video</option>
                         <option value="article">Article</option>
                       </select>
                       <Link size={14} className="text-base-content/40 shrink-0" />
-                      <input type="url" value={res.url} onChange={e => updateResource(modIdx, resIdx, 'url', e.target.value)} placeholder="URL" className="bg-transparent border-none outline-none text-xs text-base-content/60 w-32" />
+                      <input type="url" value={res.url} onChange={e => updateResource(modIdx, resIdx, 'url', e.target.value)} placeholder="https://youtube.com/..." className="bg-transparent border-none outline-none text-xs text-base-content/60 w-44" />
                       {mod.resources.length > 1 && <button onClick={() => removeResource(modIdx, resIdx)} className="text-error/60 hover:text-error shrink-0"><Trash2 size={14} /></button>}
                     </div>
                   ))}
+
+                  <button onClick={() => addResource(modIdx)} className="w-full py-2.5 border border-dashed border-base-300 rounded-lg text-sm text-base-content/60 font-medium hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2">
+                    <Plus size={16} /> Add Resource to Module
+                  </button>
                 </div>
               </div>
             ))}

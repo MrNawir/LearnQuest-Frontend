@@ -4,12 +4,11 @@ import {
   Trophy,
   Users,
   ArrowRight,
-  CheckCircle2,
-  Zap
+  CheckCircle2
 } from 'lucide-react';
 
 interface LandingPageProps {
-  onOpenAuth: () => void;
+  onOpenAuth: (mode?: 'login' | 'signup') => void;
   onOpenContact: () => void;
   onOpenAbout?: () => void;
   onOpenPrivacy?: () => void;
@@ -51,13 +50,13 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
 
         <div className="flex items-center gap-4">
           <button 
-            onClick={onOpenAuth}
+            onClick={() => onOpenAuth('login')}
             className="text-sm font-medium text-base-content/60 hover:text-base-content hidden sm:block"
           >
             Log In
           </button>
           <button 
-            onClick={onOpenAuth}
+            onClick={() => onOpenAuth('signup')}
             className="px-5 py-2.5 bg-primary text-primary-content rounded-full text-sm font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 hover:-translate-y-0.5"
           >
             Get Started
@@ -75,11 +74,6 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
               animate="visible"
               className="relative z-10"
             >
-              <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-wider mb-6">
-                <Zap size={14} fill="currentColor" />
-                <span>Gamified Learning v2.0</span>
-              </motion.div>
-              
               <motion.h1 variants={itemVariants} className="text-5xl lg:text-7xl font-extrabold tracking-tight text-base-content leading-[1.1] mb-6">
                 Master any skill, <br/>
                 <span className="text-primary">one quest</span> at a time.
@@ -91,13 +85,13 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
 
               <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
                 <button 
-                  onClick={onOpenAuth}
+                  onClick={() => onOpenAuth('signup')}
                   className="px-8 py-4 bg-primary text-primary-content rounded-xl font-bold text-lg shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
                 >
                   Start Your Journey <ArrowRight size={20} />
                 </button>
                 <button 
-                  onClick={onOpenAuth}
+                  onClick={() => onOpenAuth('signup')}
                   className="px-8 py-4 bg-base-100 border border-base-300 text-base-content rounded-xl font-bold text-lg hover:bg-base-300/50 transition-colors"
                 >
                   Explore Courses
@@ -200,35 +194,13 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="py-20 px-6">
-           <div className="max-w-7xl mx-auto bg-primary text-primary-content rounded-3xl p-12 md:p-20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-              
-              <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                 {[
-                   { val: "50k+", label: "Active Learners" },
-                   { val: "1,200+", label: "Courses Created" },
-                   { val: "95%", label: "Completion Rate" },
-                   { val: "4.9/5", label: "User Rating" },
-                 ].map((stat, i) => (
-                   <div key={i}>
-                      <div className="text-4xl md:text-5xl font-extrabold mb-2">{stat.val}</div>
-                      <div className="text-primary-content/70 font-medium">{stat.label}</div>
-                   </div>
-                 ))}
-              </div>
-           </div>
-        </section>
-
         {/* CTA Section */}
         <section className="py-20 px-6 text-center">
            <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bold text-base-content mb-6">Ready to start your quest?</h2>
               <p className="text-xl text-base-content/60 mb-10">Join thousands of learners today and turn your study time into game time.</p>
               <button 
-                onClick={onOpenAuth}
+                onClick={() => onOpenAuth('signup')}
                 className="px-10 py-4 bg-primary text-primary-content rounded-full font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-1 transition-all"
               >
                 Join for Free
@@ -256,10 +228,10 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Platform</h4>
                 <ul className="space-y-3 text-sm">
-                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Learning Paths</button></li>
-                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Challenges</button></li>
-                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Leaderboard</button></li>
-                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Creator Studio</button></li>
+                  <li><button onClick={() => onOpenAuth('signup')} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Learning Paths</button></li>
+                  <li><button onClick={() => onOpenAuth('signup')} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Challenges</button></li>
+                  <li><button onClick={() => onOpenAuth('signup')} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Leaderboard</button></li>
+                  <li><button onClick={() => onOpenAuth('signup')} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Creator Studio</button></li>
                 </ul>
               </div>
 
@@ -268,7 +240,6 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
                 <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Company</h4>
                 <ul className="space-y-3 text-sm">
                   <li><button onClick={onOpenAbout} className="text-neutral-content/70 hover:text-neutral-content transition-colors">About us</button></li>
-                  <li><button onClick={onOpenContact} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Contact</button></li>
                   <li><button onClick={onOpenPrivacy} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Privacy policy</button></li>
                   <li><button onClick={onOpenTerms} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Terms of service</button></li>
                 </ul>

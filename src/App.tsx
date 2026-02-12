@@ -7,7 +7,6 @@ import { CreatorStudio } from './components/CreatorStudio';
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
 import { LessonView } from './components/LessonView';
-import { ContactUs } from './components/ContactUs';
 import { AboutPage } from './components/AboutPage';
 import { PrivacyPage } from './components/PrivacyPage';
 import { TermsPage } from './components/TermsPage';
@@ -23,8 +22,9 @@ import './stores/themeStore';
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isInLessonMode, setIsInLessonMode] = useState(false);
-  const [showContact, setShowContact] = useState(false);
+  const [showContact] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -37,6 +37,27 @@ export default function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Dynamic page titles
+  useEffect(() => {
+    const titles: Record<string, string> = {
+      dashboard: 'Dashboard',
+      'learning-path': 'Learning Paths',
+      gamification: 'Achievements',
+      creator: 'Creator Studio',
+      admin: 'Admin Dashboard',
+      settings: 'Settings',
+    };
+    if (!isAuthenticated) {
+      document.title = 'LearnQuest — Gamified Learning Platform';
+    } else if (isInLessonMode) {
+      document.title = 'Lesson — LearnQuest';
+    } else if (activeQuizId) {
+      document.title = 'Quiz — LearnQuest';
+    } else {
+      document.title = `${titles[activeTab] || 'Dashboard'} — LearnQuest`;
+    }
+  }, [activeTab, isAuthenticated, isInLessonMode, activeQuizId]);
 
   const handleLoginSuccess = () => {
     setIsAuthOpen(false);
@@ -151,7 +172,7 @@ export default function App() {
   }
 
   if (showContact) {
-    return <ContactUs onBack={() => setShowContact(false)} />;
+    return null;
   }
   if (showAbout) {
     return <AboutPage onBack={() => setShowAbout(false)} />;
@@ -167,8 +188,8 @@ export default function App() {
     return (
       <>
         <LandingPage
-          onOpenAuth={() => setIsAuthOpen(true)}
-          onOpenContact={() => setShowContact(true)}
+          onOpenAuth={(mode?: 'login' | 'signup') => { setAuthMode(mode || 'signup'); setIsAuthOpen(true); }}
+          onOpenContact={() => {}}
           onOpenAbout={() => setShowAbout(true)}
           onOpenPrivacy={() => setShowPrivacy(true)}
           onOpenTerms={() => setShowTerms(true)}
@@ -179,6 +200,7 @@ export default function App() {
               isOpen={isAuthOpen}
               onClose={() => setIsAuthOpen(false)}
               onLogin={handleLoginSuccess}
+              initialMode={authMode}
             />
           )}
         </AnimatePresence>

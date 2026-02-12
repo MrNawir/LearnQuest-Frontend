@@ -21,6 +21,8 @@ export interface LearningPath {
   image_url?: string;
   xp_reward: number;
   creator_id: number;
+  creator_name?: string;
+  creator_avatar?: string;
   is_published: boolean;
   rating: number;
   enrolled_count: number;
