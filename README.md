@@ -148,21 +148,19 @@ The Axios instance in `src/services/api.ts` reads this variable and falls back t
 ## Application Architecture
 
 ```
-                    App.tsx (Root)
-                    |
-        +-----------+-----------+
-        |           |           |
-    LandingPage  AuthModal   Layout
-    (unauth)     (login/     (authenticated)
-                  signup)     |
-                         +----+----+
-                         |         |
-                      Sidebar   Content Area
-                      (nav)     |
-                         +------+------+------+------+------+------+
-                         |      |      |      |      |      |      |
-                      Dash   Learn  Lesson  Quiz  Gamif  Creator Admin
-                      board  Path   View         ication Studio  Dash
+App.tsx (Root)
+├── LandingPage          Unauthenticated visitors
+├── AuthModal            Login / Signup
+└── Layout               Authenticated shell
+     ├── Sidebar          Navigation
+     └── Content Area
+          ├── Dashboard
+          ├── LearningPath
+          ├── LessonView   (full-screen overlay)
+          ├── Quiz         (full-screen overlay)
+          ├── Gamification
+          ├── CreatorStudio
+          └── AdminDashboard
 ```
 
 **Data flow:**
@@ -275,59 +273,58 @@ The browser tab title updates dynamically based on the active view (e.g., "Dashb
 
 ```
 LearnQuest-Frontend/
-|
-|-- public/
-|   +-- favicon.svg              # LearnQuest SVG favicon
-|
-|-- src/
-|   |-- components/
-|   |   |-- ui/                  # shadcn/ui primitives (Button, Dialog, etc.)
-|   |   |-- admin/
-|   |   |   +-- AdminDashboard.tsx  # Admin panel (stats, approvals, users, reports)
-|   |   |-- App.tsx              # Root component, routing, auth state
-|   |   |-- LandingPage.tsx      # Public landing page
-|   |   |-- AuthModal.tsx        # Login/signup modal
-|   |   |-- Onboarding.tsx       # First-time user tutorial
-|   |   |-- Layout.tsx           # Sidebar + header layout shell
-|   |   |-- Dashboard.tsx        # Learner dashboard
-|   |   |-- LearningPath.tsx     # Course detail and enrollment
-|   |   |-- LessonView.tsx       # Video player and lesson completion
-|   |   |-- Quiz.tsx             # Quiz taking interface
-|   |   |-- Gamification.tsx     # Achievements, leaderboard, badges
-|   |   |-- CreatorStudio.tsx    # Content creation for contributors
-|   |   |-- Settings.tsx         # Profile and account settings
-|   |   |-- AboutPage.tsx        # About page
-|   |   |-- PrivacyPage.tsx      # Privacy policy
-|   |   +-- TermsPage.tsx        # Terms of service
-|   |
-|   |-- services/
-|   |   |-- api.ts               # Axios instance with interceptors
-|   |   |-- authService.ts       # Authentication API
-|   |   |-- userService.ts       # User profiles and stats
-|   |   |-- learningPathService.ts  # Learning paths, enrollment, progress
-|   |   |-- gamificationService.ts  # Badges, leaderboard, XP, streaks
-|   |   |-- quizService.ts       # Quiz fetching and submission
-|   |   |-- commentService.ts    # Discussion comments
-|   |   +-- adminService.ts      # Admin operations
-|   |
-|   |-- stores/
-|   |   |-- authStore.ts         # Auth state (Zustand)
-|   |   |-- learningStore.ts     # Learning paths and progress
-|   |   |-- gamificationStore.ts # Badges, leaderboard, challenges
-|   |   +-- themeStore.ts        # Theme preferences
-|   |
-|   |-- types/
-|   |   +-- index.ts             # Shared TypeScript interfaces
-|   |
-|   |-- main.tsx                 # Application entry point
-|   +-- index.css                # TailwindCSS imports and global styles
-|
-|-- index.html                   # HTML shell with favicon and meta tags
-|-- vite.config.ts               # Vite configuration
-|-- tsconfig.json                # TypeScript configuration
-|-- tailwind.config.ts           # TailwindCSS + DaisyUI configuration
-|-- package.json                 # Dependencies and scripts
-+-- eslint.config.js             # ESLint configuration
+├── public/
+│   └── favicon.svg              # LearnQuest SVG favicon
+│
+├── src/
+│   ├── components/
+│   │   ├── ui/                  # shadcn/ui primitives (Button, Dialog, etc.)
+│   │   ├── admin/
+│   │   │   └── AdminDashboard.tsx  # Admin panel (stats, approvals, users, reports)
+│   │   ├── App.tsx              # Root component, routing, auth state
+│   │   ├── LandingPage.tsx      # Public landing page
+│   │   ├── AuthModal.tsx        # Login/signup modal
+│   │   ├── Onboarding.tsx       # First-time user tutorial
+│   │   ├── Layout.tsx           # Sidebar + header layout shell
+│   │   ├── Dashboard.tsx        # Learner dashboard
+│   │   ├── LearningPath.tsx     # Course detail and enrollment
+│   │   ├── LessonView.tsx       # Video player and lesson completion
+│   │   ├── Quiz.tsx             # Quiz taking interface
+│   │   ├── Gamification.tsx     # Achievements, leaderboard, badges
+│   │   ├── CreatorStudio.tsx    # Content creation for contributors
+│   │   ├── Settings.tsx         # Profile and account settings
+│   │   ├── AboutPage.tsx        # About page
+│   │   ├── PrivacyPage.tsx      # Privacy policy
+│   │   └── TermsPage.tsx        # Terms of service
+│   │
+│   ├── services/
+│   │   ├── api.ts               # Axios instance with interceptors
+│   │   ├── authService.ts       # Authentication API
+│   │   ├── userService.ts       # User profiles and stats
+│   │   ├── learningPathService.ts  # Learning paths, enrollment, progress
+│   │   ├── gamificationService.ts  # Badges, leaderboard, XP, streaks
+│   │   ├── quizService.ts       # Quiz fetching and submission
+│   │   ├── commentService.ts    # Discussion comments
+│   │   └── adminService.ts      # Admin operations
+│   │
+│   ├── stores/
+│   │   ├── authStore.ts         # Auth state (Zustand)
+│   │   ├── learningStore.ts     # Learning paths and progress
+│   │   ├── gamificationStore.ts # Badges, leaderboard, challenges
+│   │   └── themeStore.ts        # Theme preferences
+│   │
+│   ├── types/
+│   │   └── index.ts             # Shared TypeScript interfaces
+│   │
+│   ├── main.tsx                 # Application entry point
+│   └── index.css                # TailwindCSS imports and global styles
+│
+├── index.html                   # HTML shell with favicon and meta tags
+├── vite.config.ts               # Vite configuration
+├── tsconfig.json                # TypeScript configuration
+├── tailwind.config.ts           # TailwindCSS + DaisyUI configuration
+├── package.json                 # Dependencies and scripts
+└── eslint.config.js             # ESLint configuration
 ```
 
 ---
