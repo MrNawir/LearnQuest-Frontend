@@ -5,16 +5,18 @@ import {
   Users,
   ArrowRight,
   CheckCircle2,
-  Zap,
-  Globe
+  Zap
 } from 'lucide-react';
 
 interface LandingPageProps {
   onOpenAuth: () => void;
   onOpenContact: () => void;
+  onOpenAbout?: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenTerms?: () => void;
 }
 
-export function LandingPage({ onOpenAuth, onOpenContact }: LandingPageProps) {
+export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPrivacy, onOpenTerms }: LandingPageProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -94,7 +96,10 @@ export function LandingPage({ onOpenAuth, onOpenContact }: LandingPageProps) {
                 >
                   Start Your Journey <ArrowRight size={20} />
                 </button>
-                <button className="px-8 py-4 bg-base-100 border border-base-300 text-base-content rounded-xl font-bold text-lg hover:bg-base-300/50 transition-colors">
+                <button 
+                  onClick={onOpenAuth}
+                  className="px-8 py-4 bg-base-100 border border-base-300 text-base-content rounded-xl font-bold text-lg hover:bg-base-300/50 transition-colors"
+                >
                   Explore Courses
                 </button>
               </motion.div>
@@ -234,29 +239,57 @@ export function LandingPage({ onOpenAuth, onOpenContact }: LandingPageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-base-300 bg-base-200">
-         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-base-300 flex items-center justify-center text-base-content/60 font-bold text-sm">
+      <footer className="bg-neutral text-neutral-content">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="border border-neutral-content/10 rounded-2xl p-10 md:p-14">
+            {/* Logo */}
+            <div className="flex items-center gap-2.5 mb-10">
+              <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-lg">
                 L
               </div>
-              <span className="font-bold text-base-content">LearnQuest</span>
+              <span className="font-bold text-xl text-neutral-content">LearnQuest</span>
             </div>
-            
-            <div className="flex gap-8 text-sm text-base-content/60">
-               <a href="#" className="hover:text-base-content">About</a>
-               <a href="#" className="hover:text-base-content">Privacy</a>
-               <a href="#" className="hover:text-base-content">Terms</a>
-               <button onClick={onOpenContact} className="hover:text-base-content">Contact</button>
+
+            {/* Column Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-16 gap-y-10">
+              {/* Platform */}
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Platform</h4>
+                <ul className="space-y-3 text-sm">
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Learning Paths</button></li>
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Challenges</button></li>
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Leaderboard</button></li>
+                  <li><button onClick={onOpenAuth} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Creator Studio</button></li>
+                </ul>
+              </div>
+
+              {/* Company */}
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Company</h4>
+                <ul className="space-y-3 text-sm">
+                  <li><button onClick={onOpenAbout} className="text-neutral-content/70 hover:text-neutral-content transition-colors">About us</button></li>
+                  <li><button onClick={onOpenContact} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Contact</button></li>
+                  <li><button onClick={onOpenPrivacy} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Privacy policy</button></li>
+                  <li><button onClick={onOpenTerms} className="text-neutral-content/70 hover:text-neutral-content transition-colors">Terms of service</button></li>
+                </ul>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-content/40 mb-5">Resources</h4>
+                <ul className="space-y-3 text-sm">
+                  <li><a href="#features" className="text-neutral-content/70 hover:text-neutral-content transition-colors">Features</a></li>
+                  <li><a href="#how-it-works" className="text-neutral-content/70 hover:text-neutral-content transition-colors">How it Works</a></li>
+                  <li><a href="#community" className="text-neutral-content/70 hover:text-neutral-content transition-colors">Community</a></li>
+                </ul>
+              </div>
             </div>
-            
-            <div className="flex gap-4">
-               <div className="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center text-base-content/60 hover:bg-accent hover:text-white transition-colors cursor-pointer">
-                  <Globe size={16} />
-               </div>
-               {/* Add social icons if needed */}
-            </div>
-         </div>
+          </div>
+        </div>
+
+        <div className="border-t border-neutral-content/10 py-5 text-center text-xs text-neutral-content/30">
+          &copy; {new Date().getFullYear()} LearnQuest. All rights reserved.
+        </div>
       </footer>
     </div>
   );

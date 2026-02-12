@@ -110,15 +110,15 @@ function ConfirmDialog({
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-card rounded-2xl border border-border shadow-xl max-w-md w-full p-6"
+                className="bg-base-200 rounded-2xl border border-base-300 shadow-xl max-w-md w-full p-6"
                 onClick={(e) => e.stopPropagation()}
             >
-                <h3 className="text-lg font-bold text-foreground mb-2">{title}</h3>
-                <p className="text-muted-foreground mb-6">{message}</p>
+                <h3 className="text-lg font-bold text-base-content mb-2">{title}</h3>
+                <p className="text-base-content/60 mb-6">{message}</p>
                 <div className="flex gap-3 justify-end">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary rounded-lg transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-base-content/60 hover:bg-base-300 rounded-lg transition-colors"
                     >
                         Cancel
                     </button>
@@ -127,8 +127,8 @@ function ConfirmDialog({
                         className={clsx(
                             "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                             confirmVariant === "danger"
-                                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                : "bg-primary text-primary-foreground hover:bg-primary/90"
+                                ? "bg-error text-error-content hover:bg-error/90"
+                                : "bg-primary text-primary-content hover:bg-primary/90"
                         )}
                     >
                         {confirmText}
@@ -166,13 +166,13 @@ function StatsCard({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card p-6 rounded-2xl border border-border shadow-sm"
+            className="bg-base-200 p-6 rounded-2xl border border-base-300 shadow-sm"
         >
             <div className="flex items-start justify-between">
                 <div>
-                    <p className="text-sm font-medium text-muted-foreground">{label}</p>
+                    <p className="text-sm font-medium text-base-content/60">{label}</p>
                     <div className="flex items-baseline gap-2 mt-1">
-                        <h3 className="text-2xl font-bold text-foreground">{value}</h3>
+                        <h3 className="text-2xl font-bold text-base-content">{value}</h3>
                         {growth !== undefined && (
                             <span
                                 className={clsx(
@@ -235,20 +235,20 @@ function PathPreviewModal({
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-card rounded-2xl border border-border shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
+                className="bg-base-200 rounded-2xl border border-base-300 shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-6 border-b border-border">
+                <div className="p-6 border-b border-base-300">
                     <div className="flex items-start justify-between">
                         <div>
-                            <h2 className="text-xl font-bold text-foreground">{path.title}</h2>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <h2 className="text-xl font-bold text-base-content">{path.title}</h2>
+                            <p className="text-sm text-base-content/60 mt-1">
                                 by {path.creator.username} • {path.modules_count} modules
                             </p>
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                            className="p-2 hover:bg-base-300 rounded-lg transition-colors"
                         >
                             <X size={20} />
                         </button>
@@ -258,60 +258,60 @@ function PathPreviewModal({
                 <div className="p-6 overflow-y-auto max-h-[50vh]">
                     <div className="space-y-4">
                         <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                            <h4 className="text-sm font-medium text-base-content/60 mb-1">
                                 Description
                             </h4>
-                            <p className="text-foreground">{path.description}</p>
+                            <p className="text-base-content">{path.description}</p>
                         </div>
                         <div className="flex gap-4">
                             <div>
-                                <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                                <h4 className="text-sm font-medium text-base-content/60 mb-1">
                                     Category
                                 </h4>
-                                <span className="inline-block px-3 py-1 bg-secondary rounded-full text-sm">
+                                <span className="inline-block px-3 py-1 bg-base-300 rounded-full text-sm">
                                     {path.category}
                                 </span>
                             </div>
                             <div>
-                                <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                                <h4 className="text-sm font-medium text-base-content/60 mb-1">
                                     Difficulty
                                 </h4>
-                                <span className="inline-block px-3 py-1 bg-secondary rounded-full text-sm capitalize">
+                                <span className="inline-block px-3 py-1 bg-base-300 rounded-full text-sm capitalize">
                                     {path.difficulty}
                                 </span>
                             </div>
                         </div>
                         <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-1">
+                            <h4 className="text-sm font-medium text-base-content/60 mb-1">
                                 Submitted
                             </h4>
-                            <p className="text-foreground">
+                            <p className="text-base-content">
                                 {new Date(path.created_at).toLocaleDateString()}
                             </p>
                         </div>
                     </div>
 
                     {showRejectForm && (
-                        <div className="mt-6 p-4 bg-destructive/10 rounded-xl border border-destructive/20">
-                            <h4 className="text-sm font-medium text-foreground mb-2">
+                        <div className="mt-6 p-4 bg-error/10 rounded-xl border border-error/20">
+                            <h4 className="text-sm font-medium text-base-content mb-2">
                                 Rejection Reason
                             </h4>
                             <textarea
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 placeholder="Explain why this path is being rejected..."
-                                className="w-full p-3 bg-card border border-border rounded-lg text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                                className="w-full p-3 bg-base-200 border border-base-300 rounded-lg text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-error/50"
                             />
                         </div>
                     )}
                 </div>
 
-                <div className="p-6 border-t border-border flex gap-3 justify-end">
+                <div className="p-6 border-t border-base-300 flex gap-3 justify-end">
                     {!showRejectForm ? (
                         <>
                             <button
                                 onClick={() => setShowRejectForm(true)}
-                                className="px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-error hover:bg-error/10 rounded-lg transition-colors"
                             >
                                 Reject
                             </button>
@@ -327,7 +327,7 @@ function PathPreviewModal({
                         <>
                             <button
                                 onClick={() => setShowRejectForm(false)}
-                                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary rounded-lg transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-base-content/60 hover:bg-base-300 rounded-lg transition-colors"
                             >
                                 Back
                             </button>
@@ -337,7 +337,7 @@ function PathPreviewModal({
                                     setShowRejectForm(false);
                                     setRejectReason("");
                                 }}
-                                className="px-4 py-2 text-sm font-medium bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors"
+                                className="px-4 py-2 text-sm font-medium bg-error text-error-content rounded-lg hover:bg-error/90 transition-colors"
                             >
                                 Confirm Rejection
                             </button>
@@ -368,9 +368,9 @@ function PendingApprovalsSection({
     const [previewPath, setPreviewPath] = useState<PendingPath | null>(null);
 
     return (
-        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-border">
-                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+        <div className="bg-base-200 rounded-2xl border border-base-300 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-base-300">
+                <h2 className="text-lg font-bold text-base-content flex items-center gap-2">
                     <AlertCircle size={20} className="text-amber-500" />
                     Pending Approvals
                 </h2>
@@ -379,55 +379,55 @@ function PendingApprovalsSection({
             {paths.length === 0 ? (
                 <div className="p-12 text-center">
                     <Check size={48} className="mx-auto text-green-500 mb-4" />
-                    <p className="text-muted-foreground">All caught up! No pending approvals.</p>
+                    <p className="text-base-content/60">All caught up! No pending approvals.</p>
                 </div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full">
-                        <thead className="bg-secondary/50">
+                        <thead className="bg-base-300/30">
                             <tr>
-                                <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                     Title
                                 </th>
-                                <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                     Creator
                                 </th>
-                                <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                     Category
                                 </th>
-                                <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                     Submitted
                                 </th>
-                                <th className="text-right px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                <th className="text-right px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
                             {paths.map((path) => (
-                                <tr key={path.id} className="hover:bg-secondary/30 transition-colors">
+                                <tr key={path.id} className="hover:bg-base-300/30 transition-colors">
                                     <td className="px-6 py-4">
-                                        <div className="font-medium text-foreground">{path.title}</div>
-                                        <div className="text-sm text-muted-foreground">
+                                        <div className="font-medium text-base-content">{path.title}</div>
+                                        <div className="text-sm text-base-content/60">
                                             {path.modules_count} modules
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-foreground">
+                                    <td className="px-6 py-4 text-sm text-base-content">
                                         {path.creator.username}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className="inline-block px-2 py-1 bg-secondary rounded text-sm">
+                                        <span className="inline-block px-2 py-1 bg-base-300 rounded text-sm">
                                             {path.category}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-muted-foreground">
+                                    <td className="px-6 py-4 text-sm text-base-content/60">
                                         {new Date(path.created_at).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => setPreviewPath(path)}
-                                                className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors"
+                                                className="p-2 text-base-content/60 hover:text-base-content hover:bg-base-300 rounded-lg transition-colors"
                                                 title="Review"
                                             >
                                                 <Eye size={16} />
@@ -441,7 +441,7 @@ function PendingApprovalsSection({
                                             </button>
                                             <button
                                                 onClick={() => setPreviewPath(path)}
-                                                className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                                className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                                                 title="Reject"
                                             >
                                                 <X size={16} />
@@ -510,10 +510,10 @@ function UserManagementSection({
     const roles = ["admin", "contributor", "learner"];
 
     return (
-        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-border">
+        <div className="bg-base-200 rounded-2xl border border-base-300 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-base-300">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-base-content flex items-center gap-2">
                         <Users size={20} className="text-blue-500" />
                         User Management
                     </h2>
@@ -521,21 +521,21 @@ function UserManagementSection({
                         <div className="relative">
                             <Search
                                 size={16}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60"
                             />
                             <input
                                 type="text"
                                 placeholder="Search users..."
                                 value={searchQuery}
                                 onChange={(e) => onSearch(e.target.value)}
-                                className="pl-9 pr-4 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-48"
+                                className="pl-9 pr-4 py-2 bg-base-300/30 border border-base-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 w-48"
                             />
                         </div>
                         <div className="relative">
                             <select
                                 value={roleFilter}
                                 onChange={(e) => onFilterRole(e.target.value)}
-                                className="appearance-none pl-4 pr-10 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                className="appearance-none pl-4 pr-10 py-2 bg-base-300/30 border border-base-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                             >
                                 <option value="">All Roles</option>
                                 <option value="admin">Admin</option>
@@ -544,7 +544,7 @@ function UserManagementSection({
                             </select>
                             <ChevronDown
                                 size={16}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/60 pointer-events-none"
                             />
                         </div>
                     </div>
@@ -553,41 +553,41 @@ function UserManagementSection({
 
             <div className="overflow-x-auto">
                 <table className="w-full">
-                    <thead className="bg-secondary/50">
+                    <thead className="bg-base-300/30">
                         <tr>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                 User
                             </th>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                 Role
                             </th>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                 XP
                             </th>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                 Status
                             </th>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="text-left px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                 Joined
                             </th>
-                            <th className="text-right px-6 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            <th className="text-right px-6 py-3 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
                         {users.map((user) => (
-                            <tr key={user.id} className="hover:bg-secondary/30 transition-colors">
+                            <tr key={user.id} className="hover:bg-base-300/30 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                                             {user.username.charAt(0).toUpperCase()}
                                         </div>
                                         <div>
-                                            <div className="font-medium text-foreground">
+                                            <div className="font-medium text-base-content">
                                                 {user.username}
                                             </div>
-                                            <div className="text-sm text-muted-foreground">
+                                            <div className="text-sm text-base-content/60">
                                                 {user.email}
                                             </div>
                                         </div>
@@ -612,7 +612,7 @@ function UserManagementSection({
                                             <ChevronDown size={14} />
                                         </button>
                                         {roleDropdown === user.id && (
-                                            <div className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-10 overflow-hidden">
+                                            <div className="absolute top-full left-0 mt-1 bg-base-200 border border-base-300 rounded-lg shadow-lg z-10 overflow-hidden">
                                                 {roles.map((role) => (
                                                     <button
                                                         key={role}
@@ -621,8 +621,8 @@ function UserManagementSection({
                                                             setRoleDropdown(null);
                                                         }}
                                                         className={clsx(
-                                                            "w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors capitalize",
-                                                            role === user.role && "bg-secondary"
+                                                            "w-full px-4 py-2 text-left text-sm hover:bg-base-300 transition-colors capitalize",
+                                                            role === user.role && "bg-base-300"
                                                         )}
                                                     >
                                                         {role}
@@ -632,7 +632,7 @@ function UserManagementSection({
                                         )}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-foreground font-medium">
+                                <td className="px-6 py-4 text-sm text-base-content font-medium">
                                     {user.xp.toLocaleString()}
                                 </td>
                                 <td className="px-6 py-4">
@@ -649,7 +649,7 @@ function UserManagementSection({
                                         {user.status || "active"}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-muted-foreground">
+                                <td className="px-6 py-4 text-sm text-base-content/60">
                                     {new Date(user.created_at).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4">
@@ -675,7 +675,7 @@ function UserManagementSection({
                                                     username: user.username,
                                                 })
                                             }
-                                            className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                            className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
                                             title="Delete"
                                         >
                                             <Trash2 size={16} />
@@ -738,9 +738,9 @@ function ModerationSection({
     const [actionDropdown, setActionDropdown] = useState<number | null>(null);
 
     return (
-        <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-border">
-                <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+        <div className="bg-base-200 rounded-2xl border border-base-300 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-base-300">
+                <h2 className="text-lg font-bold text-base-content flex items-center gap-2">
                     <Flag size={20} className="text-red-500" />
                     Content Moderation Queue
                 </h2>
@@ -749,12 +749,12 @@ function ModerationSection({
             {reports.length === 0 ? (
                 <div className="p-12 text-center">
                     <Shield size={48} className="mx-auto text-green-500 mb-4" />
-                    <p className="text-muted-foreground">No reported content to review.</p>
+                    <p className="text-base-content/60">No reported content to review.</p>
                 </div>
             ) : (
                 <div className="divide-y divide-border">
                     {reports.map((report) => (
-                        <div key={report.id} className="p-6 hover:bg-secondary/20 transition-colors">
+                        <div key={report.id} className="p-6 hover:bg-base-300/20 transition-colors">
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
@@ -766,16 +766,16 @@ function ModerationSection({
                                         </span>
                                     </div>
                                     {report.content_preview && (
-                                        <div className="bg-secondary/50 p-3 rounded-lg mb-3">
-                                            <p className="text-sm text-muted-foreground mb-1">
+                                        <div className="bg-base-300/30 p-3 rounded-lg mb-3">
+                                            <p className="text-sm text-base-content/60 mb-1">
                                                 by <span className="font-medium">{report.content_preview.author}</span>
                                             </p>
-                                            <p className="text-sm text-foreground">
+                                            <p className="text-sm text-base-content">
                                                 "{report.content_preview.content}"
                                             </p>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-4 text-sm text-base-content/60">
                                         <span>Reported by: {report.reporter?.username}</span>
                                         <span>•</span>
                                         <span>{new Date(report.created_at).toLocaleDateString()}</span>
@@ -784,7 +784,7 @@ function ModerationSection({
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => onDismiss(report.id)}
-                                        className="px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary rounded-lg transition-colors"
+                                        className="px-3 py-2 text-sm font-medium text-base-content/60 hover:bg-base-300 rounded-lg transition-colors"
                                     >
                                         Dismiss
                                     </button>
@@ -795,19 +795,19 @@ function ModerationSection({
                                                     actionDropdown === report.id ? null : report.id
                                                 )
                                             }
-                                            className="px-3 py-2 text-sm font-medium bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center gap-1"
+                                            className="px-3 py-2 text-sm font-medium bg-error text-error-content rounded-lg hover:bg-error/90 transition-colors flex items-center gap-1"
                                         >
                                             Take Action
                                             <ChevronDown size={14} />
                                         </button>
                                         {actionDropdown === report.id && (
-                                            <div className="absolute top-full right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-10 overflow-hidden min-w-[140px]">
+                                            <div className="absolute top-full right-0 mt-1 bg-base-200 border border-base-300 rounded-lg shadow-lg z-10 overflow-hidden min-w-[140px]">
                                                 <button
                                                     onClick={() => {
                                                         onAction(report.id, "warn");
                                                         setActionDropdown(null);
                                                     }}
-                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-base-300 transition-colors flex items-center gap-2"
                                                 >
                                                     <AlertTriangle size={14} className="text-amber-500" />
                                                     Warn User
@@ -817,7 +817,7 @@ function ModerationSection({
                                                         onAction(report.id, "remove");
                                                         setActionDropdown(null);
                                                     }}
-                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-base-300 transition-colors flex items-center gap-2"
                                                 >
                                                     <Trash2 size={14} className="text-red-500" />
                                                     Remove Content
@@ -827,7 +827,7 @@ function ModerationSection({
                                                         onAction(report.id, "ban");
                                                         setActionDropdown(null);
                                                     }}
-                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-secondary transition-colors flex items-center gap-2"
+                                                    className="w-full px-4 py-2 text-left text-sm hover:bg-base-300 transition-colors flex items-center gap-2"
                                                 >
                                                     <Ban size={14} className="text-red-500" />
                                                     Ban User
@@ -990,11 +990,11 @@ export function AdminDashboard() {
         <div className="space-y-8">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-base-content flex items-center gap-3">
                     <Shield className="text-primary" />
                     Admin Dashboard
                 </h1>
-                <p className="text-muted-foreground mt-1">
+                <p className="text-base-content/60 mt-1">
                     Manage users, content approvals, and platform moderation
                 </p>
             </div>
@@ -1034,7 +1034,7 @@ export function AdminDashboard() {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex items-center gap-1 p-1 bg-secondary/50 rounded-xl w-fit">
+            <div className="flex items-center gap-1 p-1 bg-base-300/30 rounded-xl w-fit">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -1042,8 +1042,8 @@ export function AdminDashboard() {
                         className={clsx(
                             "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                             activeTab === tab.id
-                                ? "bg-card text-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground"
+                                ? "bg-base-200 text-base-content shadow-sm"
+                                : "text-base-content/60 hover:text-base-content"
                         )}
                     >
                         <tab.icon size={16} />
