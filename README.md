@@ -1,4 +1,4 @@
-# LearnQuest Frontend 🎓
+# LearnQuest Frontend
 
 A modern React-based frontend for the LearnQuest Crowdsourced Learning Platform with Gamification.
 
@@ -11,14 +11,14 @@ A modern React-based frontend for the LearnQuest Crowdsourced Learning Platform 
 - **Craig Omore** - Full Stack Developer (Admin & Creator)
 
 ## Features
-- ✅ Modern, responsive UI with TailwindCSS
-- ✅ User Authentication (Login/Register)
-- ✅ Role-based Dashboard (Learner, Contributor, Admin)
-- ✅ Learning Path Browser & Progress Tracking
-- ✅ Gamification Display (XP, Badges, Achievements)
-- ✅ Creator Studio for Contributors
-- ✅ Animated transitions with Framer Motion
-- ✅ State Management with Zustand
+- Modern, responsive UI with TailwindCSS
+- User Authentication (Login/Register)
+- Role-based Dashboard (Learner, Contributor, Admin)
+- Learning Path Browser & Progress Tracking
+- Gamification Display (XP, Badges, Achievements)
+- Creator Studio for Contributors
+- Animated transitions with Framer Motion
+- State Management with Zustand
 
 ## Quick Start
 
