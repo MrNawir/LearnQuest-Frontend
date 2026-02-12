@@ -5,6 +5,7 @@ import {
   CheckCircle2, 
   ChevronLeft, 
   ChevronRight, 
+  ChevronDown,
   FileText, 
   Download, 
   MoreHorizontal,
@@ -25,6 +26,7 @@ interface LessonItem {
   completed: boolean;
   current: boolean;
   type: string;
+  moduleId: number;
   moduleTitle: string;
   description: string;
   url?: string;
@@ -78,17 +80,18 @@ export function LessonView({ onBack, pathId, initialLessonIndex = 0 }: LessonVie
       completed: currentProgress?.completed_resources?.includes(res.id) || false,
       current: false,
       type: res.resource_type || 'video',
+      moduleId: mod.id,
       moduleTitle: mod.title,
       description: res.description || 'Explore this lesson to deepen your understanding of the topic.',
       url: res.url,
       xpReward: 50,
     }))
   ) || [
-    { id: 1, title: "1. Understanding the Box Model", duration: "10:00", completed: true, current: false, type: 'video', moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Learn the fundamentals of the CSS box model and how elements are sized and spaced on the web.', xpReward: 50 },
-    { id: 2, title: "2. Typography Hierarchies", duration: "15:00", completed: true, current: false, type: 'article', moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Discover how to create effective typographic hierarchies that guide users through your content.', xpReward: 50 },
-    { id: 3, title: "3. Color Theory Basics", duration: "20:00", completed: false, current: false, type: 'video', moduleTitle: 'Module 1: Foundations of Modern UI', description: 'In this lesson, we dive deep into the 60-30-10 rule, a classic decorating rule that helps create a balanced color palette.', xpReward: 50 },
-    { id: 4, title: "4. Flexbox Layouts", duration: "25:00", completed: false, current: false, type: 'video', moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Master CSS Flexbox to create flexible, responsive layouts with ease.', xpReward: 50 },
-    { id: 5, title: "5. CSS Grid Fundamentals", duration: "30:00", completed: false, current: false, type: 'video', moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Learn CSS Grid to build complex two-dimensional layouts that were previously impossible.', xpReward: 50 },
+    { id: 1, title: "1. Understanding the Box Model", duration: "10:00", completed: true, current: false, type: 'video', moduleId: 0, moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Learn the fundamentals of the CSS box model and how elements are sized and spaced on the web.', xpReward: 50 },
+    { id: 2, title: "2. Typography Hierarchies", duration: "15:00", completed: true, current: false, type: 'article', moduleId: 0, moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Discover how to create effective typographic hierarchies that guide users through your content.', xpReward: 50 },
+    { id: 3, title: "3. Color Theory Basics", duration: "20:00", completed: false, current: false, type: 'video', moduleId: 0, moduleTitle: 'Module 1: Foundations of Modern UI', description: 'In this lesson, we dive deep into the 60-30-10 rule, a classic decorating rule that helps create a balanced color palette.', xpReward: 50 },
+    { id: 4, title: "4. Flexbox Layouts", duration: "25:00", completed: false, current: false, type: 'video', moduleId: 0, moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Master CSS Flexbox to create flexible, responsive layouts with ease.', xpReward: 50 },
+    { id: 5, title: "5. CSS Grid Fundamentals", duration: "30:00", completed: false, current: false, type: 'video', moduleId: 0, moduleTitle: 'Module 1: Foundations of Modern UI', description: 'Learn CSS Grid to build complex two-dimensional layouts that were previously impossible.', xpReward: 50 },
   ];
 
   // Mark current
@@ -96,6 +99,39 @@ export function LessonView({ onBack, pathId, initialLessonIndex = 0 }: LessonVie
   const currentLesson = lessonsWithCurrent[currentLessonIdx];
   const completedCount = lessonsWithCurrent.filter(l => l.completed).length;
   const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
+
+  // Group lessons by module for sidebar
+  const moduleGroups = lessonsWithCurrent.reduce<{ moduleId: number; moduleTitle: string; lessons: (LessonItem & { globalIdx: number })[] }[]>((acc, item, globalIdx) => {
+    let group = acc.find(g => g.moduleId === item.moduleId);
+    if (!group) {
+      group = { moduleId: item.moduleId, moduleTitle: item.moduleTitle, lessons: [] };
+      acc.push(group);
+    }
+    group.lessons.push({ ...item, globalIdx });
+    return acc;
+  }, []);
+  const currentModuleId = currentLesson?.moduleId;
+  const [expandedSidebarModules, setExpandedSidebarModules] = useState<Set<number>>(new Set());
+
+  // Auto-expand the module of the current lesson
+  useEffect(() => {
+    if (currentModuleId !== undefined) {
+      setExpandedSidebarModules(prev => {
+        const next = new Set(prev);
+        next.add(currentModuleId);
+        return next;
+      });
+    }
+  }, [currentModuleId]);
+
+  const toggleSidebarModule = (modId: number) => {
+    setExpandedSidebarModules(prev => {
+      const next = new Set(prev);
+      if (next.has(modId)) next.delete(modId);
+      else next.add(modId);
+      return next;
+    });
+  };
 
   const handlePrevious = () => {
     if (currentLessonIdx > 0) {
@@ -466,44 +502,70 @@ export function LessonView({ onBack, pathId, initialLessonIndex = 0 }: LessonVie
           </div>
           
           <div className="divide-y divide-base-300">
-            {lessonsWithCurrent.map((item, idx) => (
-              <button 
-                key={item.id}
-                onClick={() => handleLessonSelect(idx)}
-                className={clsx(
-                  "w-full p-4 flex items-start gap-3 text-left hover:bg-base-300/30 transition-colors relative",
-                  item.current ? "bg-base-300/50" : ""
-                )}
-              >
-                {item.current && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
-                )}
-                
-                <div className={clsx(
-                  "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                  item.completed ? "text-green-500 bg-green-100" : 
-                  item.current ? "text-primary border-2 border-primary bg-transparent" :
-                  "border border-base-content/40 text-transparent"
-                )}>
-                  {item.completed && <CheckCircle2 size={14} />}
-                  {item.current && <div className="w-2 h-2 rounded-full bg-primary"></div>}
+            {moduleGroups.map((group) => {
+              const isExpanded = expandedSidebarModules.has(group.moduleId);
+              const groupCompleted = group.lessons.filter(l => l.completed).length;
+              const hasCurrentLesson = group.lessons.some(l => l.current);
+              return (
+                <div key={group.moduleId}>
+                  <button
+                    onClick={() => toggleSidebarModule(group.moduleId)}
+                    className={clsx(
+                      "w-full px-4 py-3 flex items-center justify-between text-left hover:bg-base-300/20 transition-colors",
+                      hasCurrentLesson && "bg-primary/5"
+                    )}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-base-content truncate">{group.moduleTitle}</p>
+                      <p className="text-[11px] text-base-content/40 mt-0.5">{groupCompleted}/{group.lessons.length} completed</p>
+                    </div>
+                    <ChevronDown size={14} className={clsx("text-base-content/40 transition-transform shrink-0 ml-2", isExpanded && "rotate-180")} />
+                  </button>
+                  {isExpanded && (
+                    <div>
+                      {group.lessons.map((item) => (
+                        <button 
+                          key={item.id}
+                          onClick={() => handleLessonSelect(item.globalIdx)}
+                          className={clsx(
+                            "w-full px-4 py-3 flex items-start gap-3 text-left hover:bg-base-300/30 transition-colors relative",
+                            item.current ? "bg-base-300/50" : ""
+                          )}
+                        >
+                          {item.current && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                          )}
+                          
+                          <div className={clsx(
+                            "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                            item.completed ? "text-green-500 bg-green-100" : 
+                            item.current ? "text-primary border-2 border-primary bg-transparent" :
+                            "border border-base-content/40 text-transparent"
+                          )}>
+                            {item.completed && <CheckCircle2 size={14} />}
+                            {item.current && <div className="w-2 h-2 rounded-full bg-primary"></div>}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className={clsx(
+                              "text-sm font-medium leading-tight mb-1",
+                              item.current ? "text-base-content font-bold" : item.completed ? "text-base-content" : "text-base-content/60"
+                            )}>
+                              {item.title}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-base-content/40">
+                              <span className="capitalize">{item.type}</span>
+                              <span>•</span>
+                              <span>{item.duration}</span>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                
-                <div className="flex-1 min-w-0">
-                  <p className={clsx(
-                    "text-sm font-medium leading-tight mb-1",
-                    item.current ? "text-base-content font-bold" : item.completed ? "text-base-content" : "text-base-content/60"
-                  )}>
-                    {item.title}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-base-content/40">
-                    <span className="capitalize">{item.type}</span>
-                    <span>•</span>
-                    <span>{item.duration}</span>
-                  </div>
-                </div>
-              </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

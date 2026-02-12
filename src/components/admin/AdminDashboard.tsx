@@ -19,6 +19,7 @@ import {
     Flag,
 } from "lucide-react";
 import clsx from "clsx";
+import { toast } from "sonner";
 import adminService from "../../services/adminService";
 
 interface AdminStats {
@@ -507,7 +508,7 @@ function UserManagementSection({
     } | null>(null);
     const [roleDropdown, setRoleDropdown] = useState<number | null>(null);
 
-    const roles = ["admin", "contributor", "learner"];
+    const roles = ["contributor", "learner"];
 
     return (
         <div className="bg-base-200 rounded-2xl border border-base-300 shadow-sm overflow-hidden">
@@ -906,8 +907,10 @@ export function AdminDashboard() {
             setStats((prev: AdminStats | null) =>
                 prev ? { ...prev, pending_approvals: prev.pending_approvals - 1 } : null
             );
+            toast.success('Learning path approved!');
         } catch (error) {
             console.error("Failed to approve path:", error);
+            toast.error('Failed to approve path');
         }
     };
 
@@ -918,8 +921,10 @@ export function AdminDashboard() {
             setStats((prev: AdminStats | null) =>
                 prev ? { ...prev, pending_approvals: prev.pending_approvals - 1 } : null
             );
+            toast.success('Learning path rejected');
         } catch (error) {
             console.error("Failed to reject path:", error);
+            toast.error('Failed to reject path');
         }
     };
 
@@ -929,19 +934,25 @@ export function AdminDashboard() {
             setUsers((prev) =>
                 prev.map((u) => (u.id === userId ? { ...u, role } : u))
             );
+            toast.success(`User role changed to ${role}`);
         } catch (error) {
             console.error("Failed to change role:", error);
+            toast.error('Failed to change user role');
         }
     };
 
     const handleSuspend = async (userId: number) => {
         try {
             await adminService.suspendUser(userId);
+            const user = users.find(u => u.id === userId);
+            const wasSuspended = user?.status === 'suspended';
             setUsers((prev) =>
-                prev.map((u) => (u.id === userId ? { ...u, status: "suspended" } : u))
+                prev.map((u) => (u.id === userId ? { ...u, status: wasSuspended ? 'active' : 'suspended' } : u))
             );
+            toast.success(wasSuspended ? 'User reactivated' : 'User suspended');
         } catch (error) {
             console.error("Failed to suspend user:", error);
+            toast.error('Failed to update user status');
         }
     };
 
@@ -949,8 +960,10 @@ export function AdminDashboard() {
         try {
             await adminService.deleteUser(userId);
             setUsers((prev) => prev.filter((u) => u.id !== userId));
+            toast.success('User deleted');
         } catch (error) {
             console.error("Failed to delete user:", error);
+            toast.error('Failed to delete user');
         }
     };
 

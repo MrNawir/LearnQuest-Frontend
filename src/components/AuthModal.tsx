@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Mail, Lock, User } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,10 +8,17 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogin: () => void;
+  initialMode?: 'login' | 'signup';
 }
 
-export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
-  const [isLoginMode, setIsLoginMode] = useState(true);
+export function AuthModal({ isOpen, onClose, onLogin, initialMode = 'login' }: AuthModalProps) {
+  const [isLoginMode, setIsLoginMode] = useState(initialMode === 'login');
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsLoginMode(initialMode === 'login');
+    }
+  }, [isOpen, initialMode]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');

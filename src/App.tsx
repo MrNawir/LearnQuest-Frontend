@@ -23,6 +23,7 @@ import './stores/themeStore';
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isInLessonMode, setIsInLessonMode] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -167,7 +168,7 @@ export default function App() {
     return (
       <>
         <LandingPage
-          onOpenAuth={() => setIsAuthOpen(true)}
+          onOpenAuth={(mode?: 'login' | 'signup') => { setAuthMode(mode || 'signup'); setIsAuthOpen(true); }}
           onOpenContact={() => setShowContact(true)}
           onOpenAbout={() => setShowAbout(true)}
           onOpenPrivacy={() => setShowPrivacy(true)}
@@ -179,6 +180,7 @@ export default function App() {
               isOpen={isAuthOpen}
               onClose={() => setIsAuthOpen(false)}
               onLogin={handleLoginSuccess}
+              initialMode={authMode}
             />
           )}
         </AnimatePresence>
