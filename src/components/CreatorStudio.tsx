@@ -9,7 +9,7 @@ import { useAuthStore } from '../stores/authStore';
 interface ModuleForm {
   title: string;
   description: string;
-  resources: { title: string; type: 'video' | 'article'; url: string }[];
+  resources: { title: string; type: 'video' | 'article' | 'pdf'; url: string; uploading?: boolean }[];
 }
 
 interface MyPath {
@@ -54,16 +54,41 @@ export function CreatorStudio() {
   const loadMyPaths = async () => {
     setLoadingPaths(true);
     try {
-      const res = await api.get('/learning-paths/');
-      const allPaths = res.data.learning_paths || [];
-      // Filter paths created by the current user
-      const mine = allPaths.filter((p: any) => p.creator_id === user?.id);
-      setMyPaths(mine);
+      const res = await api.get('/learning-paths/my-paths');
+      setMyPaths(res.data.learning_paths || []);
     } catch {
-      // fallback - show all paths for admin
-      setMyPaths([]);
+      // Fallback: fetch all and filter client-side
+      try {
+        const res = await api.get('/learning-paths/');
+        const allPaths = res.data.learning_paths || [];
+        setMyPaths(allPaths.filter((p: any) => p.creator_id === user?.id));
+      } catch {
+        setMyPaths([]);
+      }
     } finally {
       setLoadingPaths(false);
+    }
+  };
+
+  const handlePdfUpload = async (modIdx: number, resIdx: number, file: File) => {
+    const updated = [...modules];
+    updated[modIdx].resources[resIdx].uploading = true;
+    setModules([...updated]);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await api.post('/learning-paths/upload-pdf', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      updated[modIdx].resources[resIdx].url = res.data.url;
+      updated[modIdx].resources[resIdx].title = updated[modIdx].resources[resIdx].title || file.name.replace('.pdf', '');
+      updated[modIdx].resources[resIdx].uploading = false;
+      setModules([...updated]);
+      toast.success(`Uploaded ${file.name}`);
+    } catch {
+      updated[modIdx].resources[resIdx].uploading = false;
+      setModules([...updated]);
+      toast.error('Failed to upload PDF');
     }
   };
 
@@ -90,7 +115,7 @@ export function CreatorStudio() {
 
   const addResource = (modIdx: number) => {
     const updated = [...modules];
-    updated[modIdx].resources.push({ title: '', type: 'article', url: '' });
+    updated[modIdx].resources.push({ title: '', type: 'video', url: '' });
     setModules(updated);
   };
 
@@ -405,16 +430,32 @@ export function CreatorStudio() {
                   <input type="text" value={mod.description} onChange={e => updateModule(modIdx, 'description', e.target.value)} placeholder="Module description..." className="w-full px-3 py-2 bg-base-300/10 border border-base-300 rounded-lg text-sm outline-none focus:border-primary" />
                   
                   {mod.resources.map((res, resIdx) => (
-                    <div key={resIdx} className="flex items-center gap-3 p-3 border border-base-300 rounded-lg bg-base-300/10">
-                      {res.type === 'video' ? <Video size={18} className="text-blue-500 shrink-0" /> : <FileText size={18} className="text-orange-500 shrink-0" />}
-                      <input type="text" value={res.title} onChange={e => updateResource(modIdx, resIdx, 'title', e.target.value)} placeholder="Resource title" className="bg-transparent border-none outline-none text-sm font-medium flex-1 min-w-0" />
-                      <select value={res.type} onChange={e => updateResource(modIdx, resIdx, 'type', e.target.value)} className="text-xs bg-base-300/20 border border-base-300 rounded px-2 py-1 outline-none">
-                        <option value="video">Video</option>
-                        <option value="article">Article</option>
-                      </select>
-                      <Link size={14} className="text-base-content/40 shrink-0" />
-                      <input type="url" value={res.url} onChange={e => updateResource(modIdx, resIdx, 'url', e.target.value)} placeholder="https://youtube.com/..." className="bg-transparent border-none outline-none text-xs text-base-content/60 w-44" />
-                      {mod.resources.length > 1 && <button onClick={() => removeResource(modIdx, resIdx)} className="text-error/60 hover:text-error shrink-0"><Trash2 size={14} /></button>}
+                    <div key={resIdx} className="flex flex-col gap-2 p-3 border border-base-300 rounded-lg bg-base-300/10">
+                      <div className="flex items-center gap-3">
+                        {res.type === 'video' ? <Video size={18} className="text-blue-500 shrink-0" /> : res.type === 'pdf' ? <Upload size={18} className="text-red-500 shrink-0" /> : <FileText size={18} className="text-orange-500 shrink-0" />}
+                        <input type="text" value={res.title} onChange={e => updateResource(modIdx, resIdx, 'title', e.target.value)} placeholder="Resource title" className="bg-transparent border-none outline-none text-sm font-medium flex-1 min-w-0" />
+                        <select value={res.type} onChange={e => updateResource(modIdx, resIdx, 'type', e.target.value)} className="text-xs bg-base-300/20 border border-base-300 rounded px-2 py-1 outline-none">
+                          <option value="video">Video</option>
+                          <option value="article">Article</option>
+                          <option value="pdf">PDF</option>
+                        </select>
+                        {mod.resources.length > 1 && <button onClick={() => removeResource(modIdx, resIdx)} className="text-error/60 hover:text-error shrink-0"><Trash2 size={14} /></button>}
+                      </div>
+                      {res.type === 'pdf' ? (
+                        <div className="flex items-center gap-3 ml-8">
+                          <label className="flex items-center gap-2 px-3 py-1.5 bg-base-300/30 border border-base-300 rounded-lg text-xs font-medium text-base-content/70 hover:border-primary hover:text-primary cursor-pointer transition-colors">
+                            <Upload size={14} />
+                            {res.uploading ? 'Uploading...' : res.url ? 'Replace PDF' : 'Choose PDF'}
+                            <input type="file" accept=".pdf" className="hidden" onChange={e => { if (e.target.files?.[0]) handlePdfUpload(modIdx, resIdx, e.target.files[0]); }} />
+                          </label>
+                          {res.url && <span className="text-xs text-green-600 font-medium">Uploaded</span>}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 ml-8">
+                          <Link size={14} className="text-base-content/40 shrink-0" />
+                          <input type="url" value={res.url} onChange={e => updateResource(modIdx, resIdx, 'url', e.target.value)} placeholder={res.type === 'video' ? 'https://youtube.com/...' : 'https://...'} className="bg-transparent border-none outline-none text-xs text-base-content/60 flex-1" />
+                        </div>
+                      )}
                     </div>
                   ))}
 

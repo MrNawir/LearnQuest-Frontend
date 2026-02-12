@@ -98,16 +98,6 @@ export function LandingPage({ onOpenAuth, onOpenContact, onOpenAbout, onOpenPriv
                 </button>
               </motion.div>
 
-              <motion.div variants={itemVariants} className="mt-12 flex items-center gap-4 text-sm text-base-content/60">
-                <div className="flex -space-x-2">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-base-100 bg-base-300 overflow-hidden">
-                       <img src={`https://images.unsplash.com/photo-${i === 1 ? '1534528741775-53994a69daeb' : i === 2 ? '1506794778202-cad84cf45f1d' : i === 3 ? '1507003211169-0a1dd7228f2d' : '1438761681033-6461ffad8d80'}?w=60&h=60&fit=crop`} alt="User" />
-                    </div>
-                  ))}
-                </div>
-                <p><span className="font-bold text-base-content">10,000+</span> learners joined this week</p>
-              </motion.div>
             </motion.div>
 
             <motion.div
